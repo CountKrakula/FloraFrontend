@@ -1,17 +1,26 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/inter";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
-  --green-deep: #1f5136;
-  --green-main: #3f7d4f;
-  --green-soft: #dcefe1;
-  --green-pale: #eef8f0;
+  /* Palett – byt gärna namn/värden */
+  --green-pale: #cfe8d5;
+  --green-soft: #d9ebdd;
+  --green-main: #3f7d58;
+  --green-deep: #1f4a33;
 
-  --success: #3f8f5b;
-  --warning: #c58a32;
-  --info: #3f7f9e;
-
+  /* shadcn-tokens */
   --background: var(--green-pale);
   --foreground: #1f2d24;
+
+  --card: #ffffff;
+  --card-foreground: #1f2d24;
+
+  --popover: #ffffff;
+  --popover-foreground: #1f2d24;
 
   --primary: var(--green-main);
   --primary-foreground: #ffffff;
@@ -25,18 +34,69 @@
   --accent: #c8e6cf;
   --accent-foreground: var(--green-deep);
 
+  --destructive: #c94a4a;
+
   --border: #c8dccd;
   --input: #c8dccd;
   --ring: var(--green-main);
 
-  --destructive: #c94a4a;
-  --destructive-foreground: #ffffff;
-
-  --card: #ffffff;
-  --card-foreground: var(--foreground);
-
-  --popover: #ffffff;
-  --popover-foreground: var(--foreground);
-
   --radius: 0.75rem;
+}
+
+.dark {
+  --background: #121a15;
+  --foreground: #e8f1ea;
+  --card: #1a251e;
+  --card-foreground: #e8f1ea;
+  --popover: #1a251e;
+  --popover-foreground: #e8f1ea;
+  --primary: #5fb07f;
+  --primary-foreground: #0f1a13;
+  --secondary: #243329;
+  --secondary-foreground: #e8f1ea;
+  --muted: #243329;
+  --muted-foreground: #9db0a3;
+  --accent: #2c4034;
+  --accent-foreground: #e8f1ea;
+  --destructive: #e07070;
+  --border: #ffffff1a;
+  --input: #ffffff26;
+  --ring: #5fb07f;
+}
+
+@theme inline {
+  --font-sans: "Inter Variable", system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
 }
