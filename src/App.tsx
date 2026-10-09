@@ -1,5 +1,13 @@
-import { Button } from "@/components/ui/button"
+import { RouterProvider } from "react-router-dom";
+import "./App.css";
+import { Router } from "./Router";
 
-export default function App() {
-  return <Button>Test</Button>
+function App() {
+  return (
+    <>
+      <RouterProvider router={Router} />
+    </>
+  );
 }
+
+export default App;
