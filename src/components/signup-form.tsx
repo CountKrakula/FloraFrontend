@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/button"
+import { Link } from "react-router-dom"
+
 import {
   Card,
   CardContent,
@@ -64,7 +66,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                   Sign up with Google
                 </Button>
                 <FieldDescription className="px-6 text-center">
-                  Already have an account? <a href="#">Sign in</a>
+                  Already have an account? <Link to="/login">Sign in</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
