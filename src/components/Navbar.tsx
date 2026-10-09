@@ -1,3 +1,5 @@
+import { LogoutButton } from "./LogoutButton";
+
 export const Navbar = () => {
   return (
     <nav className="app-nav">
@@ -8,6 +10,7 @@ export const Navbar = () => {
         <li>
           <a href="/login">Login</a>
         </li>
+        <li><LogoutButton /></li>
       </ul>
     </nav>
   );
