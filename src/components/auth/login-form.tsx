@@ -1,5 +1,8 @@
 import { cn } from "cn"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { useState } from 'react'
+// import { loginWithCookie } from '../services/AuthService'
+
 
 import { Button } from "@/components/ui/button"
 import {
@@ -21,6 +24,20 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const navigate = useNavigate()
+
+  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
+    e.preventDefault();
+    try {
+      // await loginWithCookie(email, password);
+      console.log('Logged in!', { email, password });
+      navigate("/");
+    } catch (err) {
+      console.log("Error", err);
+    }
+  }
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -31,7 +48,7 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit}>
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -39,6 +56,7 @@ export function LoginForm({
                   id="email"
                   type="email"
                   placeholder="m@example.com"
+                  value={email} onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </Field>
@@ -52,13 +70,11 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
               </Field>
               <Field>
                 <Button type="submit">Login</Button>
-                <Button variant="outline" type="button">
-                  Login with Google
-                </Button>
+
                 <FieldDescription className="text-center">
                   Don&apos;t have an account? <Link to="/register">Sign up</Link>
                 </FieldDescription>
