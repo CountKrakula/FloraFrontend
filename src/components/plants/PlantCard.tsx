@@ -21,7 +21,7 @@ export const PlantCard: React.FC<PlantCardProps> = ({ plant }) => {
 
   return (
     <Card
-      onClick={() => navigate(`/plants/${plant.plantId}`)}
+     onClick={() => navigate(`/plant-details/${plant.plantId}`)}
       className="group overflow-hidden cursor-pointer hover:shadow-md transition-all duration-200 border-border p-0 flex flex-col justify-between"
     >
       <div>
