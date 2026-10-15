@@ -3,14 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CareInfoCard } from "@/components/care/CareInfoCard";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
+import { MOCK_PLANTS } from "@/data/mockPlants";
 import type { Care } from "@/components/care/CareInfoDialog";
 
-// Fake plant data for now, will come from the backend later
-const plant = { name: "Monstera", species: "Monstera deliciosa", location: "Living room" };
-
 export const PlantDetailsPage = () => {
-  // The plant id from the URL (/plant-details/:id), will be used to fetch the right plant later
+  // The plant id from the URL (/plant-details/:id), it's a string so convert to a number
   const { id } = useParams();
+
+  // Find the plant with that id in the mock data (will be a backend call later)
+  const plant = MOCK_PLANTS.find((p) => p.plantId === Number(id));
 
   // The saved care values, the page owns them so the card can update after Save
   const [care, setCare] = useState<Care>({
@@ -22,15 +23,22 @@ export const PlantDetailsPage = () => {
     pruning: "Spring",
   });
 
+  // No plant with that id
+  if (!plant) return <p className="p-8 text-center">Plant not found</p>;
+
   return (
     <div className="flex items-center justify-center px-4 py-8 md:py-16">
       <div className="w-full max-w-sm md:max-w-md space-y-4">
-        {/* Plant image placeholder */}
-        <div className="flex h-44 items-center justify-center rounded-lg bg-muted">Image</div>
+        {/* Plant image (first image from the plant's images) */}
+        <img
+          src={plant.plantImages?.[0]?.url}
+          alt={plant.name}
+          className="h-44 w-full rounded-lg object-cover"
+        />
         <div>
           <h1 className="text-xl font-medium">{plant.name}</h1>
           <p className="text-sm text-muted-foreground">
-            {plant.species} · {plant.location}
+            {plant.plantSpecies?.name} · {plant.notes}
           </p>
         </div>
 
