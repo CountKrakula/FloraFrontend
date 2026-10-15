@@ -37,7 +37,10 @@ export const CareInfoDialog = ({ care, onSave }: Props) => {
     setCareValues({ ...careValues, [field]: value });
   };
 
-  const handleSave = () => {
+  // Runs on Save click or Enter key
+  const handleSubmit = (e: React.SyntheticEvent) => {
+    // Stop the browser from reloading the page
+    e.preventDefault();
     // Send the new values up to the page, then close the dialog
     onSave(careValues);
     setOpen(false);
@@ -54,8 +57,9 @@ export const CareInfoDialog = ({ care, onSave }: Props) => {
           <DialogTitle>Edit care information</DialogTitle>
         </DialogHeader>
 
-        {/* The six inputs, each one shows and updates its own field */}
-        <div className="space-y-3">
+        {/* The form: Save button or Enter key triggers handleSubmit */}
+        <form onSubmit={handleSubmit} className="space-y-3">
+          {/* The six inputs, each one shows and updates its own field */}
           <div>
             <Label htmlFor="watering">Watering frequency</Label>
             <Input id="watering" value={careValues.watering} onChange={(e) => handleChange("watering", e.target.value)} />
@@ -80,16 +84,16 @@ export const CareInfoDialog = ({ care, onSave }: Props) => {
             <Label htmlFor="pruning">Pruning</Label>
             <Input id="pruning" value={careValues.pruning} onChange={(e) => handleChange("pruning", e.target.value)} />
           </div>
-        </div>
 
-        <DialogFooter>
-          {/* Cancel closes the dialog without saving */}
-          <DialogClose render={<Button variant="outline" />}>
-            Cancel
-          </DialogClose>
-          {/* Save sends the values to the page and closes the dialog */}
-          <Button onClick={handleSave}>Save</Button>
-        </DialogFooter>
+          <DialogFooter>
+            {/* type="button" so Cancel closes the dialog without submitting */}
+            <DialogClose render={<Button type="button" variant="outline" />}>
+              Cancel
+            </DialogClose>
+            {/* type="submit" so this button (and Enter) triggers onSubmit */}
+            <Button type="submit">Save</Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
