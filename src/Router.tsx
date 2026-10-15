@@ -17,7 +17,7 @@ export const Router = createBrowserRouter([
       { path: "/login", element: <Login /> },
       { path: "/register", element: <Register /> },
       { path: "/my-plants", element: <MyPlantsPage /> },
-      { path: "/plant-details", element: <PlantDetailsPage /> },
+      { path: "/plant-details/:id", element: <PlantDetailsPage /> },
       { path: "/plant-library", element: <PlantLibraryPage /> },
     ],
   },
