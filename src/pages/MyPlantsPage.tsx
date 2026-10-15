@@ -18,12 +18,7 @@ export const MyPlantsPage: React.FC = () => {
       try {
         setLoading(true);
 
-        /* 
-          När er backend API-endpoint är färdigt, ersätt setTimeout med detta:
-          const response = await fetch('/api/plants');
-          const data = await response.json();
-          setPlants(data);
-        */
+        
 
         // Tillfällig simulering med mock-data:
         setTimeout(() => {
@@ -40,9 +35,10 @@ export const MyPlantsPage: React.FC = () => {
     fetchPlants();
   }, []);
 
-  const handleAddPlant = () => {
-    navigate("/add-plant");
-  };
+ const handleAddPlant = () => {
+  // TODO: Implement "Add plant" modal in a separate task/branch
+  console.log("open modal with form");
+};
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
