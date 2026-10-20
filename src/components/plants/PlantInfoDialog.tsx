@@ -57,7 +57,7 @@ export const PlantInfoDialog = ({ plant, onSave }: Props) => {
           {/* The six inputs, each one shows and updates its own field */}
           <div>
             <Label htmlFor="name">Name</Label>
-            <Input id="name" value={plantValues.name} onChange={(e) => handleChange("name", e.target.value)} />
+            <Input id="name" required value={plantValues.name} onChange={(e) => handleChange("name", e.target.value)} />
           </div>
           <div>
             <Label htmlFor="location">Location</Label>

@@ -62,27 +62,27 @@ export const CareInfoDialog = ({ care, onSave }: Props) => {
           {/* The six inputs, each one shows and updates its own field */}
           <div>
             <Label htmlFor="watering">Watering frequency</Label>
-            <Input id="watering" value={careValues.watering} onChange={(e) => handleChange("watering", e.target.value)} />
+            <Input id="watering" required value={careValues.watering} onChange={(e) => handleChange("watering", e.target.value)} />
           </div>
           <div>
             <Label htmlFor="sunlight">Sunlight</Label>
-            <Input id="sunlight" value={careValues.sunlight} onChange={(e) => handleChange("sunlight", e.target.value)} />
+            <Input id="sunlight" required value={careValues.sunlight} onChange={(e) => handleChange("sunlight", e.target.value)} />
           </div>
           <div>
             <Label htmlFor="soil">Soil type</Label>
-            <Input id="soil" value={careValues.soil} onChange={(e) => handleChange("soil", e.target.value)} />
+            <Input id="soil" required value={careValues.soil} onChange={(e) => handleChange("soil", e.target.value)} />
           </div>
           <div>
             <Label htmlFor="fertilizing">Fertilizing</Label>
-            <Input id="fertilizing" value={careValues.fertilizing} onChange={(e) => handleChange("fertilizing", e.target.value)} />
+            <Input id="fertilizing" required value={careValues.fertilizing} onChange={(e) => handleChange("fertilizing", e.target.value)} />
           </div>
           <div>
             <Label htmlFor="repotting">Repotting</Label>
-            <Input id="repotting" value={careValues.repotting} onChange={(e) => handleChange("repotting", e.target.value)} />
+            <Input id="repotting" required value={careValues.repotting} onChange={(e) => handleChange("repotting", e.target.value)} />
           </div>
           <div>
             <Label htmlFor="pruning">Pruning</Label>
-            <Input id="pruning" value={careValues.pruning} onChange={(e) => handleChange("pruning", e.target.value)} />
+            <Input id="pruning" required value={careValues.pruning} onChange={(e) => handleChange("pruning", e.target.value)} />
           </div>
 
           <DialogFooter>
