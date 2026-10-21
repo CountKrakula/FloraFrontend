@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import type { Plant } from "@/types/plant";
 import { PlantCard } from "@/components/plants/PlantCard";
 import { EmptyState } from "@/components/plants/EmptyState";
@@ -7,22 +6,32 @@ import { MOCK_PLANTS } from "@/data/mockPlants";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export const MyPlantsPage: React.FC = () => {
   const [plants, setPlants] = useState<Plant[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const navigate = useNavigate();
+  
+  // State för att styra om modalen är öppen eller stängd
+  const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
+
+  // Form state
+  const [plantName, setPlantName] = useState<string>("");
+  const [speciesName, setSpeciesName] = useState<string>("");
 
   useEffect(() => {
     const fetchPlants = async () => {
       try {
         setLoading(true);
 
-        
-
-        // Tillfällig simulering med mock-data:
         setTimeout(() => {
-          setPlants(MOCK_PLANTS); // Byt till [] för att testa Empty State
+          setPlants(MOCK_PLANTS);
           setLoading(false);
         }, 500);
 
@@ -35,10 +44,34 @@ export const MyPlantsPage: React.FC = () => {
     fetchPlants();
   }, []);
 
- const handleAddPlant = () => {
-  // TODO: Implement "Add plant" modal in a separate task/branch
-  console.log("open modal with form");
-};
+  // Öppnar modalen vid klick
+  const handleAddPlant = () => {
+    setIsAddModalOpen(true);
+  };
+
+  // Hanterar formulärinskickning
+  const handleSubmitPlant = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!plantName.trim()) return;
+
+    const newPlant: Plant = {
+      plantId: Date.now().toString(),
+      name: plantName,
+      plantSpecies: {
+        name: speciesName || "Unknown species",
+      },
+      plantImages: [],
+    };
+
+    // Lägg till den nya växten i listhanteringen
+    setPlants((prev) => [newPlant, ...prev]);
+
+    // Återställ formulär och stäng modalen
+    setPlantName("");
+    setSpeciesName("");
+    setIsAddModalOpen(false);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -79,6 +112,49 @@ export const MyPlantsPage: React.FC = () => {
           ))}
         </div>
       )}
+
+      {/* Clean & Minimalist Add Plant Modal */}
+      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogTitle className="text-xl font-semibold mb-2">
+            Add a new plant
+          </DialogTitle>
+
+          <form onSubmit={handleSubmitPlant} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="plantName">Plant Name</Label>
+              <Input
+                id="plantName"
+                placeholder="e.g. Monstera"
+                value={plantName}
+                onChange={(e) => setPlantName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="speciesName">Species (optional)</Label>
+              <Input
+                id="speciesName"
+                placeholder="e.g. Monstera Deliciosa"
+                value={speciesName}
+                onChange={(e) => setSpeciesName(e.target.value)}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsAddModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit">Save plant</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
