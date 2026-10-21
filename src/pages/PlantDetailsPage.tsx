@@ -1,12 +1,15 @@
 // PlantDetailsPage.tsx
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CareInfoCard } from "@/components/care/CareInfoCard";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { MOCK_PLANTS } from "@/data/mockPlants";
 import type { Care } from "@/components/care/CareInfoDialog";
+import type { Log } from "@/components/care/CareLogCard"
+import { CareLogCard } from "@/components/care/CareLogCard";
 import type { Plant as PlantInfo } from "@/components/plants/PlantInfoDialog"
 import { PlantInfoCard } from "@/components/plants/PlantInfoCard";
+
+
 
 export const PlantDetailsPage = () => {
   // The plant id from the URL (/plant-details/:id), it's a string so convert to a number
@@ -32,6 +35,11 @@ export const PlantDetailsPage = () => {
     notes: plant?.notes ?? "",
   });
 
+  const [logs] = useState<Log[]>([
+    {id: 1, date: "2026-10-22", notes: "Watered", plantId: Number(id)},
+    {id: 2, date: "2026-10-27", notes: "Fertilized", plantId: Number(id)},
+  ]);
+
   // No plant with that id
   if (!plant) return <p className="p-8 text-center">Plant not found</p>;
 
@@ -56,13 +64,8 @@ export const PlantDetailsPage = () => {
         {/* Care information card */}
         <CareInfoCard care={care} onSave={setCare} />
 
-        {/* Care log placeholder */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Care log</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">Coming soon</CardContent>
-        </Card>
+        {/* Care log car */}
+       <CareLogCard logs={logs} />
       </div>
     </div>
   );
