@@ -5,6 +5,8 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { MOCK_PLANTS } from "@/data/mockPlants";
 import type { Care } from "@/components/care/CareInfoDialog";
+import type { Plant as PlantInfo } from "@/components/plants/PlantInfoDialog"
+import { PlantInfoCard } from "@/components/plants/PlantInfoCard";
 
 export const PlantDetailsPage = () => {
   // The plant id from the URL (/plant-details/:id), it's a string so convert to a number
@@ -23,6 +25,13 @@ export const PlantDetailsPage = () => {
     pruning: "Spring",
   });
 
+  const [info, setInfo] = useState<PlantInfo>({
+    // use the plant’s name if the plant exists, otherwise use an empty string
+    name: plant?.name ?? "",
+    location: "",
+    notes: plant?.notes ?? "",
+  });
+
   // No plant with that id
   if (!plant) return <p className="p-8 text-center">Plant not found</p>;
 
@@ -32,15 +41,17 @@ export const PlantDetailsPage = () => {
         {/* Plant image (first image from the plant's images) */}
         <img
           src={plant.plantImages?.[0]?.url}
-          alt={plant.name}
+          alt={info.name}
           className="h-44 w-full rounded-lg object-cover"
         />
         <div>
-          <h1 className="text-xl font-medium">{plant.name}</h1>
+          <h1 className="text-xl font-medium">{info.name}</h1>
           <p className="text-sm text-muted-foreground">
-            {plant.plantSpecies?.name} · {plant.notes}
+            {plant.plantSpecies?.name} · {info.notes}
           </p>
         </div>
+
+        <PlantInfoCard plant={info} onSave={setInfo} />
 
         {/* Care information card */}
         <CareInfoCard care={care} onSave={setCare} />
