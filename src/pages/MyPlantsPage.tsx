@@ -59,7 +59,6 @@ export const MyPlantsPage: React.FC = () => {
       name,
       location,
       notes: notes.trim() ? notes : undefined,
-      plantSpeciesId: Number(plantSpeciesId),
     };
 
     console.log("CreatePlantDto redo för API:", dto);
@@ -71,7 +70,6 @@ export const MyPlantsPage: React.FC = () => {
       notes: dto.notes,
       createdAt: new Date().toISOString(),
       userId: 1,
-      plantSpeciesId: dto.plantSpeciesId,
       plantImages: [],
     };
 
@@ -174,16 +172,7 @@ export const MyPlantsPage: React.FC = () => {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="speciesId">Species ID</Label>
-              <Input
-                id="speciesId"
-                type="number"
-                value={plantSpeciesId}
-                onChange={(e) => setPlantSpeciesId(Number(e.target.value))}
-                required
-              />
-            </div>
+          
 
             <div className="flex justify-end gap-2 pt-4">
               <Button
