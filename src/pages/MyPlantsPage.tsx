@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import type { Plant } from "@/types/plant";
+import { useNavigate } from "react-router-dom";
+import type { Plant, CreatePlantDto } from "@/types/plant";
 import { PlantCard } from "@/components/plants/PlantCard";
 import { EmptyState } from "@/components/plants/EmptyState";
 import { MOCK_PLANTS } from "@/data/mockPlants";
@@ -15,26 +16,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const MyPlantsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [plants, setPlants] = useState<Plant[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   
-  // State för att styra om modalen är öppen eller stängd
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
 
-  // Form state
-  const [plantName, setPlantName] = useState<string>("");
-  const [speciesName, setSpeciesName] = useState<string>("");
+  // Form State som exakt matchar CreatePlantDto
+  const [name, setName] = useState<string>("");
+  const [location, setLocation] = useState<string>("");
+  const [notes, setNotes] = useState<string>("");
+  const [plantSpeciesId, setPlantSpeciesId] = useState<number>(1);
 
   useEffect(() => {
     const fetchPlants = async () => {
       try {
         setLoading(true);
-
         setTimeout(() => {
           setPlants(MOCK_PLANTS);
           setLoading(false);
         }, 500);
-
       } catch (error) {
         console.error("Error fetching plants:", error);
         setLoading(false);
@@ -44,38 +45,53 @@ export const MyPlantsPage: React.FC = () => {
     fetchPlants();
   }, []);
 
-  // Öppnar modalen vid klick
   const handleAddPlant = () => {
     setIsAddModalOpen(true);
   };
 
-  // Hanterar formulärinskickning
   const handleSubmitPlant = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!plantName.trim()) return;
+    if (!name.trim() || !location.trim()) return;
 
-    const newPlant: Plant = {
-      plantId: Date.now().toString(),
-      name: plantName,
-      plantSpecies: {
-        name: speciesName || "Unknown species",
-      },
+    // Enbart CreatePlantDto skapas här
+    const dto: CreatePlantDto = {
+      name,
+      location,
+      notes: notes.trim() ? notes : undefined,
+      plantSpeciesId: Number(plantSpeciesId),
+    };
+
+    console.log("CreatePlantDto redo för API:", dto);
+
+    // Mock-uppdatering av UI tills API är på plats
+    const createdMockPlant: Plant = {
+      plantId: Date.now(),
+      name: dto.name,
+      notes: dto.notes,
+      createdAt: new Date().toISOString(),
+      userId: 1,
+      plantSpeciesId: dto.plantSpeciesId,
       plantImages: [],
     };
 
-    // Lägg till den nya växten i listhanteringen
-    setPlants((prev) => [newPlant, ...prev]);
+    setPlants((prev) => [createdMockPlant, ...prev]);
 
-    // Återställ formulär och stäng modalen
-    setPlantName("");
-    setSpeciesName("");
+    // Återställ formuläret och stäng modalen
+    setName("");
+    setLocation("");
+    setNotes("");
+    setPlantSpeciesId(1);
     setIsAddModalOpen(false);
+  };
+
+  // Navigera till PlantDetailsPage vid klick på ett kort
+  const handlePlantClick = (plantId: number) => {
+    navigate(`/plants/${plantId}`);
   };
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
-      {/* Header section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">My Plants</h1>
@@ -92,7 +108,6 @@ export const MyPlantsPage: React.FC = () => {
         )}
       </div>
 
-      {/* Main Content */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((i) => (
@@ -108,12 +123,18 @@ export const MyPlantsPage: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {plants.map((plant) => (
-            <PlantCard key={plant.plantId} plant={plant} />
+            <div 
+              key={plant.plantId} 
+              onClick={() => handlePlantClick(plant.plantId)}
+              className="cursor-pointer transition-transform hover:scale-[1.02]"
+            >
+              <PlantCard plant={plant} />
+            </div>
           ))}
         </div>
       )}
 
-      {/* Clean & Minimalist Add Plant Modal */}
+      {/* Modal som enbart samlar in CreatePlantDto */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogTitle className="text-xl font-semibold mb-2">
@@ -122,23 +143,45 @@ export const MyPlantsPage: React.FC = () => {
 
           <form onSubmit={handleSubmitPlant} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="plantName">Plant Name</Label>
+              <Label htmlFor="name">Plant Name *</Label>
               <Input
-                id="plantName"
+                id="name"
                 placeholder="e.g. Monstera"
-                value={plantName}
-                onChange={(e) => setPlantName(e.target.value)}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="speciesName">Species (optional)</Label>
+              <Label htmlFor="location">Location *</Label>
               <Input
-                id="speciesName"
-                placeholder="e.g. Monstera Deliciosa"
-                value={speciesName}
-                onChange={(e) => setSpeciesName(e.target.value)}
+                id="location"
+                placeholder="e.g. Living Room Window"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes (optional)</Label>
+              <Input
+                id="notes"
+                placeholder="e.g. Needs watering twice a week"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="speciesId">Species ID</Label>
+              <Input
+                id="speciesId"
+                type="number"
+                value={plantSpeciesId}
+                onChange={(e) => setPlantSpeciesId(Number(e.target.value))}
+                required
               />
             </div>
 
