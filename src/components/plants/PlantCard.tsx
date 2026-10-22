@@ -17,7 +17,6 @@ export const PlantCard: React.FC<PlantCardProps> = ({ plant }) => {
     firstImage ||
     "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=500&q=80";
 
-  const speciesName = plant.plantSpecies?.name || "Unknown species";
 
   return (
     <Card
@@ -33,15 +32,11 @@ export const PlantCard: React.FC<PlantCardProps> = ({ plant }) => {
           />
         </div>
 
-        <CardHeader className="p-4 pb-1">
+        <CardHeader className="p-4">
           <CardTitle className="text-lg font-semibold group-hover:text-primary transition-colors">
             {plant.name}
           </CardTitle>
         </CardHeader>
-
-        <CardContent className="p-4 pt-0">
-          <p className="text-sm text-muted-foreground">{speciesName}</p>
-        </CardContent>
       </div>
     </Card>
   );

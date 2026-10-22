@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import type { Plant, CreatePlantDto } from "@/types/plant";
 import { PlantCard } from "@/components/plants/PlantCard";
 import { EmptyState } from "@/components/plants/EmptyState";
@@ -16,7 +15,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const MyPlantsPage: React.FC = () => {
-  const navigate = useNavigate();
   const [plants, setPlants] = useState<Plant[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   
@@ -26,7 +24,6 @@ export const MyPlantsPage: React.FC = () => {
   const [name, setName] = useState<string>("");
   const [location, setLocation] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
-  const [plantSpeciesId, setPlantSpeciesId] = useState<number>(1);
 
   useEffect(() => {
     const fetchPlants = async () => {
@@ -79,13 +76,7 @@ export const MyPlantsPage: React.FC = () => {
     setName("");
     setLocation("");
     setNotes("");
-    setPlantSpeciesId(1);
     setIsAddModalOpen(false);
-  };
-
-  // Navigera till PlantDetailsPage vid klick på ett kort
-  const handlePlantClick = (plantId: number) => {
-    navigate(`/plants/${plantId}`);
   };
 
   return (
@@ -121,13 +112,7 @@ export const MyPlantsPage: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {plants.map((plant) => (
-            <div 
-              key={plant.plantId} 
-              onClick={() => handlePlantClick(plant.plantId)}
-              className="cursor-pointer transition-transform hover:scale-[1.02]"
-            >
-              <PlantCard plant={plant} />
-            </div>
+            <PlantCard key={plant.plantId} plant={plant} />
           ))}
         </div>
       )}
@@ -171,8 +156,6 @@ export const MyPlantsPage: React.FC = () => {
                 onChange={(e) => setNotes(e.target.value)}
               />
             </div>
-
-          
 
             <div className="flex justify-end gap-2 pt-4">
               <Button
