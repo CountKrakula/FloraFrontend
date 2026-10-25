@@ -44,15 +44,23 @@ export const PlantDetailsPage = () => {
 
   const [lastWatered, setLastWatered] = useState("2026-10-24");
 
-
+  // Runs when "Mark as watered" is clicked:
+  // saves today's date as last watered and adds a "Watered" entry to the care log
   function handleWatered() {
     // turns the date into a text string and drop the time part
-    const todaysDate = new Date().toISOString().slice(0,10);
+    const todaysDate = new Date().toISOString().slice(0, 10);
     setLastWatered(todaysDate);
     setLogs([...logs, { id: logs.length + 1, date: todaysDate, notes: "Watered", plantId: Number(id) }]);
   }
 
-
+  // change the status of "Need water" label depending on the date 
+  const today = new Date().toISOString().slice(0, 10);
+  let status = "Needs water";
+  let badgeClass = "ml-auto rounded-md bg-amber-100 px-3 py-1 text-xs text-amber-800";
+  if (lastWatered === today) {
+    status = "Watered today";
+    badgeClass = "ml-auto rounded-md bg-green-100 px-3 py-1 text-xs text-green-800";
+  } 
 
   // No plant with that id
   if (!plant) return <p className="p-8 text-center">Plant not found</p>;
@@ -76,8 +84,8 @@ export const PlantDetailsPage = () => {
         <div className="flex items-center gap-2 text-sm">
           <Droplet className="h-4 w-4" />
           <span>Last watered: {lastWatered}</span>
-          <span className="ml-auto rounded-md bg-amber-100 px-3 py-1 text-xs text-amber-800">
-            Needs water
+          <span className={badgeClass}>
+            {status}
           </span>
         </div>
 
