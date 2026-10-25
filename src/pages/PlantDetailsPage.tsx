@@ -8,6 +8,8 @@ import type { Log } from "@/components/care/CareLogCard"
 import { CareLogCard } from "@/components/care/CareLogCard";
 import type { Plant as PlantInfo } from "@/components/plants/PlantInfoDialog"
 import { PlantInfoCard } from "@/components/plants/PlantInfoCard";
+import { Droplet } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 
 
@@ -35,10 +37,22 @@ export const PlantDetailsPage = () => {
     notes: plant?.notes ?? "",
   });
 
-  const [logs] = useState<Log[]>([
-    {id: 1, date: "2026-10-22", notes: "Watered", plantId: Number(id)},
-    {id: 2, date: "2026-10-27", notes: "Fertilized", plantId: Number(id)},
+  const [logs, setLogs] = useState<Log[]>([
+    { id: 1, date: "2026-10-22", notes: "Watered", plantId: Number(id) },
+    { id: 2, date: "2026-10-27", notes: "Fertilized", plantId: Number(id) },
   ]);
+
+  const [lastWatered, setLastWatered] = useState("2026-10-24");
+
+
+  function handleWatered() {
+    // turns the date into a text string and drop the time part
+    const todaysDate = new Date().toISOString().slice(0,10);
+    setLastWatered(todaysDate);
+    setLogs([...logs, { id: logs.length + 1, date: todaysDate, notes: "Watered", plantId: Number(id) }]);
+  }
+
+
 
   // No plant with that id
   if (!plant) return <p className="p-8 text-center">Plant not found</p>;
@@ -59,13 +73,23 @@ export const PlantDetailsPage = () => {
           </p>
         </div>
 
+        <div className="flex items-center gap-2 text-sm">
+          <Droplet className="h-4 w-4" />
+          <span>Last watered: {lastWatered}</span>
+          <span className="ml-auto rounded-md bg-amber-100 px-3 py-1 text-xs text-amber-800">
+            Needs water
+          </span>
+        </div>
+
         <PlantInfoCard plant={info} onSave={setInfo} />
 
         {/* Care information card */}
         <CareInfoCard care={care} onSave={setCare} />
 
-        {/* Care log car */}
-       <CareLogCard logs={logs} />
+        <Button size="sm" variant="outline" onClick={handleWatered}> <Droplet className="h-4 w-4" /> Mark as watered</Button>
+
+        {/* Care log card */}
+        <CareLogCard logs={logs} />
       </div>
     </div>
   );

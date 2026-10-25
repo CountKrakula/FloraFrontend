@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+
+
 export type Log = {
     id: number;
     date: string;
@@ -19,6 +21,8 @@ export const CareLogCard = ({ logs }: Props) => {
         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Care Log</CardTitle>
+               
+                
             </CardHeader>
             <CardContent>
                 {/* Empty state when there are no logs */}

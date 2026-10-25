@@ -21,6 +21,7 @@ export const PlantInfoDialog = ({ plant, onSave }: Props) => {
   // The values currently typed in the form, starting from the saved values
   const [plantValues, setPlantValues] = useState(plant);
 
+
   const handleOpenChange = (isOpen: boolean) => {
     // Reset the form to the saved values every time the dialog opens
     if (isOpen) setPlantValues(plant);
