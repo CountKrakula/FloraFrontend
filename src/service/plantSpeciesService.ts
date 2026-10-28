@@ -1,5 +1,28 @@
-export const searchPlantSpecies = (query: string): void => {
-  const params = new URLSearchParams({ search: query });
+import type {
+  PlantSpeciesDetails,
+  PlantSpeciesListResponse,
+} from "@/types/plantspecies";
+import { api } from "./serviceBase";
 
-  console.log("Planerat API-anrop:", `GET /api/plant-species?${params}`);
+export const getPlantsList = async (
+  searchText?: string,
+  page: number = 1,
+): Promise<PlantSpeciesListResponse> => {
+  const params = new URLSearchParams({
+    query: searchText || "",
+    page: String(page),
+  });
+  const response = await api.get<PlantSpeciesListResponse>(
+    `/plant-species?${params}`,
+  );
+  return response.data;
+};
+
+export const getPlantDetails = async (
+  plantId: number,
+): Promise<PlantSpeciesDetails> => {
+  const response = await api.get<PlantSpeciesDetails>(
+    `/plant-species/${plantId}`,
+  );
+  return response.data;
 };
