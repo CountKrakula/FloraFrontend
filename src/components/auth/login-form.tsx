@@ -1,7 +1,7 @@
 import { cn } from "cn"
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from 'react'
-// import { loginWithCookie } from '../services/AuthService'
+import { loginWithCookie } from "@/service/AuthService"
 
 
 import { Button } from "@/components/ui/button"
@@ -31,8 +31,7 @@ export function LoginForm({
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     try {
-      // await loginWithCookie(email, password);
-      console.log('Logged in!', { email, password });
+      await loginWithCookie(email, password);
       navigate("/");
     } catch (err) {
       console.log("Error", err);
