@@ -7,12 +7,6 @@ export const MOCK_PLANTS: Plant[] = [
     notes: "Living room window",
     createdAt: new Date().toISOString(),
     userId: 1,
-    plantSpeciesId: 101,
-    plantSpecies: {
-      id: 101,
-      name: "Monstera Deliciosa",
-      wateringIntervalDays: 7,
-    },
     plantImages: [
       {
         imageId: 1,
@@ -29,12 +23,6 @@ export const MOCK_PLANTS: Plant[] = [
     notes: "Office desk",
     createdAt: new Date().toISOString(),
     userId: 1,
-    plantSpeciesId: 102,
-    plantSpecies: {
-      id: 102,
-      name: "Ficus Elastica",
-      wateringIntervalDays: 10,
-    },
     plantImages: [
       {
         imageId: 2,
