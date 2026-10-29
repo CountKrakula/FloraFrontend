@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import PageContent from "./submit-image.json";
+import PageContent from "./Submit-plant-image.json";
 import { createImage } from "@/hooks/useImage";
 import InputCheckbox from "@/components/ui/checkbox";
 
