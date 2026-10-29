@@ -10,6 +10,7 @@ import { PlantInfoCard } from "@/components/plants/PlantInfoCard";
 import { Droplet, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getPlant, updatePlant, deletePlant } from "@/service/plantService";
+import { HealthLogCard } from "@/components/plants/HealthLogCard"; 
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=500&q=80";
@@ -135,6 +136,8 @@ export const PlantDetailsPage = () => {
         </div>
 
         <PlantInfoCard plant={info} onSave={handleSaveInfo} />
+        {/* Health log card */}
+        <HealthLogCard plantId={plantId} />
 
         {/* Care information card */}
         <CareInfoCard care={care} onSave={setCare} />
