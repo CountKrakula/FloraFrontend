@@ -1,31 +1,29 @@
 import { useState, useEffect } from "react";
 import PageContent from "./submit-image.json";
+import { createImage } from "@/hooks/useImage";
+import InputCheckbox from "@/components/ui/checkbox";
 
-export default function SubmitImage({ plant, images, selectedIndex }) {
+export default function SubmitImage({ plant, images,  selectedIndex, }: 
+{ plant: { Id: number; name: string };  images: { isProfilePicture: boolean }[];  selectedIndex: number; }) {
   const [content] = useState(PageContent);
   const [uploadedImage, setUploadedImage] = useState({
     url: "",
-    plantId: "",
   });
   const [isProfilePicture, setIsProfilePicture] = useState(false);
   const [status, setStatus] = useState("Idle");
   const hasProfileImage = images?.some((img) => img.isProfilePicture) ?? false;
-  const [errors, setErrors] = useState([]);
+  const [errors, setErrors] = useState<string[]>([]);
 
-  function handleFileChange(event) {
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
-    setUploadedImage((prev) => {
-      if (prev.url) URL.revokeObjectURL(prev.url);
-
-      return {
-        url: URL.createObjectURL(file),
-        plantId: plant?.Id ?? plant?.id ?? "",
-      };
-    });
+    if (uploadedImage.url) {
+      URL.revokeObjectURL(uploadedImage.url);
+    }
+    setUploadedImage({ url: URL.createObjectURL(file) });
   }
 
-  async function submitImage(event) {
+  async function submitImage(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setErrors([]);
     setStatus("Idle");
@@ -38,44 +36,26 @@ export default function SubmitImage({ plant, images, selectedIndex }) {
 
     try {
       setStatus("Loading");
-      const file = event.target.querySelector('input[type="file"]')?.files?.[0];
+      const file =
+        event.currentTarget.querySelector<HTMLInputElement>(
+          'input[type="file"]',
+        )?.files?.[0];
 
       if (!file) {
         setErrors(["Välj en fil först"]);
         setStatus("Failed");
         return;
       }
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("plantId", plant?.Id ?? plant?.id ?? "");
-      formData.append("isProfilePicture", isProfilePicture);
-
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/images`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-          body: formData,
-        },
-      );
+      await createImage(file, plant.Id, isProfilePicture);
 
       //   if (response.status === 401) {
       //     LogoutAndRedirect("Din session har gått ut av säkerhetsskäl. Logga in igen för att fortsätta.", "expired");
       //     return;
       //   }
 
-      const responseData = await response.json();
-      if (!response.ok) {
-        const errorMessages = responseData.isList
-          ? (responseData.messages ?? ["Ett fel uppstod"])
-          : [responseData.message ?? "Ett fel uppstod"];
-        setErrors(errorMessages);
-        setStatus("Failed");
-        return;
-      }
-      setUploadedImage({ url: "", plantId: "" });
+      const responseData = await createImage(file, plant.Id, isProfilePicture);
+      setUploadedImage({ url: "" });
+      setStatus("Success");
     } catch (error) {
       console.error("Error uploading image:", error);
       setStatus("Failed");
@@ -91,7 +71,7 @@ export default function SubmitImage({ plant, images, selectedIndex }) {
   }, [uploadedImage.url]);
 
   return (
- <section className="container">
+    <section className="container">
       <h3>{content["main-title"]}</h3>
       <p>{content["description1"].replaceAll("{plant.name}", plant.name)}</p>
       <p>{content["description2"].replaceAll("{plant.name}", plant.name)}</p>
@@ -123,7 +103,8 @@ export default function SubmitImage({ plant, images, selectedIndex }) {
         )}
         <label className="profile-picture-checkbox">
           <InputCheckbox
-          label={content["profile-image-checkbox"]}
+          id={String(selectedIndex)}
+            label={content["profile-image-checkbox"]}
             type="checkbox"
             checked={isProfilePicture}
             disabled={hasProfileImage}
