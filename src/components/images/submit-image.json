@@ -1,0 +1,19 @@
+{
+    "main-title": "Ladda upp en bild",
+    "description1": "Här kan du ladda upp bilder till din växt!",
+    "description2": "Bra bilder till din växt ökar chansen att för bättre information! Tänk på det här:",
+    "cards": [
+        {
+            "key": 1,
+            "description": "Bilderna ska vara i landskapsformat, dvs bredden på bilden är större än höjden."
+        },
+        {
+            "key": 2,
+            "description": "Bilderna ska vara skarpa. Det är lättare att få till om det är ljust där du tar bilden."
+        }
+    ],
+    "select-button": "Välj bild",
+    "profile-image-checkbox": "Använd som profilbild",
+    "upload-button": "Ladda upp bild",
+    "uploaded-images-title": "Uppladdade bilder"
+}
