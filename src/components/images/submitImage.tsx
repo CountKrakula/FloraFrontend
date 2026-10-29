@@ -73,7 +73,7 @@ export default function SubmitImage({ plant, images,  selectedIndex, }:
   return (
     <section className="container">
       <h3>{content["main-title"]}</h3>
-      <p>{content["description1"].replaceAll("{plant.name}", plant.name)}</p>
+      {/* <p>{content["description1"].replaceAll("{plant.name}", plant.name)}</p>
       <p>{content["description2"].replaceAll("{plant.name}", plant.name)}</p>
       {Object.entries(content["cards"] ?? {}).map(([key, card]) => (
         <div key={key}>
@@ -82,7 +82,7 @@ export default function SubmitImage({ plant, images,  selectedIndex, }:
             {card.description.replaceAll("{plant.name}", plant.name)}{" "}
           </ContentCard>
         </div>
-      ))}
+      ))} */}
       <form onSubmit={submitImage} className="upload-form flex-col">
         {/* This is not a proper button and cannot use the primary */}
         <label className="upload-button">
@@ -101,17 +101,17 @@ export default function SubmitImage({ plant, images,  selectedIndex, }:
             className="submitted-image"
           />
         )}
-        <label className="profile-picture-checkbox">
+        <div className="profile-picture-checkbox">
           <InputCheckbox
-          id={String(selectedIndex)}
+            id={`profile-picture-${selectedIndex}`}
+            name="isProfilePicture"
             label={content["profile-image-checkbox"]}
-            type="checkbox"
             checked={isProfilePicture}
             disabled={hasProfileImage}
             onChange={(e) => setIsProfilePicture(e.target.checked)}
           />
-        </label>
-        <PrimaryButton text={content["upload-button"]} type="submit" />
+        </div>
+        <button type="submit">{content["upload-button"]}</button>
       </form>
       <div>
         {status === "Failed" &&
