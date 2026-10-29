@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
+import { logout } from "@/service/AuthService"
 
 export const LogoutButton = () => {
   const navigate = useNavigate()
 
   const handleLogout = async () => {
     try {
-      // await logout()
-      console.log("logged out");
+      await logout()
     } finally {
       navigate("/login")
     }

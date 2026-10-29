@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from 'react'
-// import { register } from '../services/AuthService'
+import { register } from "@/service/AuthService"
 
 import {
   Card,
@@ -48,9 +48,8 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     }
 
     try {
-      //await register(email, password);
+      await register(email, password);
       navigate("/login");
-      console.log("registered");
     } catch (err) {
       console.log("Error", err);
     }
