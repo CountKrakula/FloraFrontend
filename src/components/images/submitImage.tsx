@@ -4,7 +4,7 @@ import { createImage } from "@/hooks/useImage";
 import InputCheckbox from "@/components/ui/checkbox";
 
 export default function SubmitImage({ plant, images,  selectedIndex, }: 
-{ plant: { Id: number; name: string };  images: { isProfilePicture: boolean }[];  selectedIndex: number; }) {
+{ plant: { PlantId: number; name: string };  images: { isProfilePicture: boolean }[];  selectedIndex: number; }) {
   const [content] = useState(PageContent);
   const [uploadedImage, setUploadedImage] = useState({
     url: "",
@@ -46,14 +46,14 @@ export default function SubmitImage({ plant, images,  selectedIndex, }:
         setStatus("Failed");
         return;
       }
-      await createImage(file, plant.Id, isProfilePicture);
+      await createImage(file, plant.PlantId, isProfilePicture);
 
       //   if (response.status === 401) {
       //     LogoutAndRedirect("Din session har gått ut av säkerhetsskäl. Logga in igen för att fortsätta.", "expired");
       //     return;
       //   }
 
-      const responseData = await createImage(file, plant.Id, isProfilePicture);
+      const responseData = await createImage(file, plant.PlantId, isProfilePicture);
       setUploadedImage({ url: "" });
       setStatus("Success");
     } catch (error) {
