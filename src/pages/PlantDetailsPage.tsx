@@ -1,6 +1,6 @@
 // PlantDetailsPage.tsx
 import { CareInfoCard } from "@/components/care/CareInfoCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { MOCK_PLANTS } from "@/data/mockPlants";
 import type { Care } from "@/components/care/CareInfoDialog";
@@ -10,7 +10,16 @@ import type { Plant as PlantInfo } from "@/components/plants/PlantInfoDialog"
 import { PlantInfoCard } from "@/components/plants/PlantInfoCard";
 import { Droplet } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getAllCareTasks } from "@/service/caretask-service";
 
+type CareTask = {
+  id: number;
+  type: string;
+  intervalDays: number;
+  lastDoneAt: string | null;
+  nextDueAt: string;
+  plantId: number;
+}
 
 
 export const PlantDetailsPage = () => {
@@ -22,13 +31,36 @@ export const PlantDetailsPage = () => {
 
   // The saved care values, the page owns them so the card can update after Save
   const [care, setCare] = useState<Care>({
-    watering: "Every 7 days",
+    watering: "Not set",
     sunlight: "Bright, indirect",
     soil: "Well-draining mix",
     fertilizing: "Monthly in summer",
     repotting: "Every 2 years",
     pruning: "Spring",
   });
+
+  const [caretasks, setCareTasks] = useState<CareTask[]>([]);
+
+  async function getCareTask(plantId: number) {
+    try {
+      const caretaskList = await getAllCareTasks(plantId);
+      setCareTasks(caretaskList);
+    } catch (error) {
+      console.error('Error fetching caretasks:', error);
+    }
+  }
+
+  const wateringTask = caretasks.find((t: CareTask) => t.type === "Watering");
+  const fertilizeTask = caretasks.find((t: CareTask) => t.type === "Fertilize");
+  const newCareValue = {
+    ...care,
+    watering: wateringTask ? `Every ${wateringTask.intervalDays} days` : "Not set",
+    fertilizing: fertilizeTask ? `Every ${fertilizeTask.intervalDays} days` : "Not set",
+  };
+
+  useEffect(() => {
+    getCareTask(Number(id));
+  }, [id]);
 
   const [info, setInfo] = useState<PlantInfo>({
     // use the plant’s name if the plant exists, otherwise use an empty string
@@ -42,14 +74,12 @@ export const PlantDetailsPage = () => {
     { id: 2, date: "2026-10-27", notes: "Fertilized", plantId: Number(id) },
   ]);
 
-  const [lastWatered, setLastWatered] = useState("2026-10-24");
 
   // Runs when "Mark as watered" is clicked:
-  // saves today's date as last watered and adds a "Watered" entry to the care log
+  // adds a "Watered" entry to the care log (local only, backend call comes later)
   function handleWatered() {
     // turns the date into a text string and drop the time part
     const todaysDate = new Date().toISOString().slice(0, 10);
-    setLastWatered(todaysDate);
     setLogs([...logs, { id: logs.length + 1, date: todaysDate, notes: "Watered", plantId: Number(id) }]);
   }
 
@@ -57,10 +87,10 @@ export const PlantDetailsPage = () => {
   const today = new Date().toISOString().slice(0, 10);
   let status = "Needs water";
   let badgeClass = "ml-auto rounded-md bg-amber-100 px-3 py-1 text-xs text-amber-800";
-  if (lastWatered === today) {
+  if (wateringTask?.lastDoneAt?.slice(0, 10) === today) {
     status = "Watered today";
     badgeClass = "ml-auto rounded-md bg-green-100 px-3 py-1 text-xs text-green-800";
-  } 
+  }
 
   // No plant with that id
   if (!plant) return <p className="p-8 text-center">Plant not found</p>;
@@ -83,7 +113,7 @@ export const PlantDetailsPage = () => {
 
         <div className="flex items-center gap-2 text-sm">
           <Droplet className="h-4 w-4" />
-          <span>Last watered: {lastWatered}</span>
+          <span>Last watered: {wateringTask?.lastDoneAt?.slice(0, 10) || "Not watered"}</span>
           <span className={badgeClass}>
             {status}
           </span>
@@ -92,13 +122,17 @@ export const PlantDetailsPage = () => {
         <PlantInfoCard plant={info} onSave={setInfo} />
 
         {/* Care information card */}
-        <CareInfoCard care={care} onSave={setCare} />
+        <CareInfoCard care={newCareValue} onSave={setCare} />
 
         <Button size="sm" variant="outline" onClick={handleWatered}> <Droplet className="h-4 w-4" /> Mark as watered</Button>
 
         {/* Care log card */}
         <CareLogCard logs={logs} />
+
+
       </div>
+
+
     </div>
   );
 };
