@@ -11,6 +11,7 @@ import { Droplet, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getPlant, updatePlant, deletePlant } from "@/service/plantService";
 import { HealthLogCard } from "@/components/plants/HealthLogCard"; 
+import { CareTasksCard } from "@/components/care/CareTasksCard";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=500&q=80";
@@ -141,6 +142,9 @@ export const PlantDetailsPage = () => {
 
         {/* Care information card */}
         <CareInfoCard care={care} onSave={setCare} />
+        
+        {/* Care schedule from the backend */}
+        <CareTasksCard plantId={plantId} />
 
         <Button size="sm" variant="outline" onClick={handleWatered}>
           <Droplet className="h-4 w-4" /> Mark as watered
