@@ -3,8 +3,12 @@ import PageContent from "./Submit-plant-image.json";
 import { createImage } from "@/hooks/useImage";
 import InputCheckbox from "@/components/ui/checkbox";
 
-export default function SubmitImage({ plant, images,  selectedIndex, }: 
-{ plant: { PlantId: number; name: string };  images: { isProfilePicture: boolean }[];  selectedIndex: number; }) {
+type Props = {
+  plant: { PlantId: number; name: string };
+  images: { isProfilePicture: boolean }[];
+  selectedIndex: number;
+}
+export default function SubmitImage({ plant, images,  selectedIndex, }: Props) {
   const [content] = useState(PageContent);
   const [uploadedImage, setUploadedImage] = useState({
     url: "",
@@ -84,7 +88,6 @@ export default function SubmitImage({ plant, images,  selectedIndex, }:
         </div>
       ))} */}
       <form onSubmit={submitImage} className="upload-form flex-col">
-        {/* This is not a proper button and cannot use the primary */}
         <label className="upload-button">
           {content["select-button"]}
           <input

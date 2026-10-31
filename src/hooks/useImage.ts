@@ -1,13 +1,14 @@
 import axios from 'axios';
+import type { ImageDTO } from "@/types/image";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL,
     withCredentials: true,
 });
 
-export const getImages = async () => {
+export const getImages = async (plantId: number): Promise<ImageDTO[]> => {
     try {
-        const response = await api.get('/api/plants/{plantId:int}/images');
+        const response = await api.get<ImageDTO[]>(`/api/plants/${plantId}/images`);
         return response.data;
     } catch (error) {
         console.error("Error fetching images:", error);
