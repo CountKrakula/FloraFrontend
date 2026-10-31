@@ -10,7 +10,7 @@ import type { Plant as PlantInfo } from "@/components/plants/PlantInfoDialog"
 import { PlantInfoCard } from "@/components/plants/PlantInfoCard";
 import { Droplet } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getAllCareTasks } from "@/service/caretask-service";
+import { getAllCareTasks, completeCareTask } from "@/service/caretask-service";
 
 type CareTask = {
   id: number;
@@ -76,11 +76,21 @@ export const PlantDetailsPage = () => {
 
 
   // Runs when "Mark as watered" is clicked:
-  // adds a "Watered" entry to the care log (local only, backend call comes later)
-  function handleWatered() {
+  // marks the watering task as done in the backend, then refreshes the care tasks.
+  async function handleWatered() {
     // turns the date into a text string and drop the time part
     const todaysDate = new Date().toISOString().slice(0, 10);
-    setLogs([...logs, { id: logs.length + 1, date: todaysDate, notes: "Watered", plantId: Number(id) }]);
+
+
+    if (wateringTask) {
+      try {
+        await completeCareTask(Number(id), wateringTask.id);
+        setLogs([...logs, { id: logs.length + 1, date: todaysDate, notes: "Watered", plantId: Number(id) }]);
+        getCareTask(Number(id)); // Refresh the care tasks after marking as watered
+      } catch (error) {
+        console.error('Error completing care task:', error);
+      }
+    }
   }
 
   // change the status of "Need water" label depending on the date 

@@ -12,3 +12,9 @@ export const getAllCareTasks = async (plantId: number) => {
   const response = await api.get(`/api/plants/${plantId}/caretasks`);
   return response.data;
 }
+
+export const completeCareTask = async (plantId: number, careTaskId: number) => {
+  const response = await api.post(`/api/plants/${plantId}/caretasks/${careTaskId}/complete`);
+  return response.data;
+}
+
