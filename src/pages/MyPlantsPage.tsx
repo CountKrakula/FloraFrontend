@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import type { Plant, CreatePlantDto } from "@/types/plant";
+import type { PlantDto, CreatePlantDto } from "@/types/plant";
 import { PlantCard } from "@/components/plants/PlantCard";
 import { EmptyState } from "@/components/plants/EmptyState";
-import { MOCK_PLANTS } from "@/data/mockPlants";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
@@ -13,11 +12,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getPlants, createPlant } from "@/service/plantService";
 
 export const MyPlantsPage: React.FC = () => {
-  const [plants, setPlants] = useState<Plant[]>([]);
+  const [plants, setPlants] = useState<PlantDto[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  
+  const [error, setError] = useState<string | null>(null);
+
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
 
   // Form State som exakt matchar CreatePlantDto
@@ -25,58 +26,43 @@ export const MyPlantsPage: React.FC = () => {
   const [location, setLocation] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
 
+  // Hämtar användarens växter från backend när sidan laddas
   useEffect(() => {
-    const fetchPlants = async () => {
-      try {
-        setLoading(true);
-        setTimeout(() => {
-          setPlants(MOCK_PLANTS);
-          setLoading(false);
-        }, 500);
-      } catch (error) {
-        console.error("Error fetching plants:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchPlants();
+    getPlants()
+      .then(setPlants)
+      .catch(() => setError("Could not load your plants. Are you logged in?"))
+      .finally(() => setLoading(false));
   }, []);
 
   const handleAddPlant = () => {
     setIsAddModalOpen(true);
   };
 
-  const handleSubmitPlant = (e: React.FormEvent) => {
+  const handleSubmitPlant = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name.trim() || !location.trim()) return;
 
-    // Enbart CreatePlantDto skapas här
     const dto: CreatePlantDto = {
       name,
       location,
       notes: notes.trim() ? notes : undefined,
     };
 
-    console.log("CreatePlantDto redo för API:", dto);
+    try {
+      // Skickar den nya växten till backend och lägger till den i listan
+      const created = await createPlant(dto);
+      setPlants((prev) => [created, ...prev]);
 
-    // Mock-uppdatering av UI tills API är på plats
-    const createdMockPlant: Plant = {
-      plantId: Date.now(),
-      name: dto.name,
-      notes: dto.notes,
-      createdAt: new Date().toISOString(),
-      userId: 1,
-      plantImages: [],
-    };
-
-    setPlants((prev) => [createdMockPlant, ...prev]);
-
-    // Återställ formuläret och stäng modalen
-    setName("");
-    setLocation("");
-    setNotes("");
-    setIsAddModalOpen(false);
+      // Återställ formuläret och stäng modalen
+      setName("");
+      setLocation("");
+      setNotes("");
+      setIsAddModalOpen(false);
+      setError(null);
+    } catch {
+      setError("Could not save the plant. Please try again.");
+    }
   };
 
   return (
@@ -97,6 +83,12 @@ export const MyPlantsPage: React.FC = () => {
         )}
       </div>
 
+      {error && (
+        <p className="mb-4 text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      )}
+
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((i) => (
@@ -112,7 +104,7 @@ export const MyPlantsPage: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {plants.map((plant) => (
-            <PlantCard key={plant.plantId} plant={plant} />
+            <PlantCard key={plant.id} plant={plant} />
           ))}
         </div>
       )}
