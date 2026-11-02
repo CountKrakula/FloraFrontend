@@ -16,6 +16,8 @@ import { getPlants, createPlant } from "@/service/plantService";
 
 export const MyPlantsPage: React.FC = () => {
   const [plants, setPlants] = useState<PlantDto[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,13 +28,17 @@ export const MyPlantsPage: React.FC = () => {
   const [location, setLocation] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
 
-  // Hämtar användarens växter från backend när sidan laddas
+  // Hämtar användarens växter från backend när sidan eller aktuellt sidnummer ändras
   useEffect(() => {
-    getPlants()
-      .then(setPlants)
+    setLoading(true);
+    getPlants(currentPage, 8)
+      .then((data) => {
+        setPlants(data.items);
+        setTotalPages(data.totalPages);
+      })
       .catch(() => setError("Could not load your plants. Are you logged in?"))
       .finally(() => setLoading(false));
-  }, []);
+  }, [currentPage]);
 
   const handleAddPlant = () => {
     setIsAddModalOpen(true);
@@ -102,11 +108,37 @@ export const MyPlantsPage: React.FC = () => {
       ) : plants.length === 0 ? (
         <EmptyState onAddPlant={handleAddPlant} />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {plants.map((plant) => (
-            <PlantCard key={plant.id} plant={plant} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {plants.map((plant) => (
+              <PlantCard key={plant.id} plant={plant} />
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-8 pt-4 border-t border-border">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage <= 1}
+                onClick={() => setCurrentPage((prev) => prev - 1)}
+              >
+                Previous
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage >= totalPages}
+                onClick={() => setCurrentPage((prev) => prev + 1)}
+              >
+                Next
+              </Button>
+            </div>
+          )}
+        </>
       )}
 
       {/* Modal som enbart samlar in CreatePlantDto */}
