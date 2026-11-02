@@ -11,14 +11,26 @@ type PlantLibraryCardProps = {
 
 export const PlantLibraryCard = ({ plantListItem }: PlantLibraryCardProps) => {
   const [open, setOpen] = useState(false);
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
+  const imageUrl = plantListItem.default_image?.regular_url?.trim();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>
         <Card className="group overflow-hidden border-border p-0 transition-shadow duration-200 hover:shadow-md">
           <div>
-            <div className="flex h-48 items-center justify-center bg-muted">
-              <Leaf className="h-16 w-16 text-primary" aria-hidden="true" />
+            <div className="flex h-48 items-center justify-center overflow-hidden bg-muted">
+              {imageUrl && imageUrl !== failedImageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt={plantListItem.common_name || plantListItem.scientific_name?.join(", ") || "Plant"}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                  onError={() => setFailedImageUrl(imageUrl)}
+                />
+              ) : (
+                <Leaf className="h-16 w-16 text-primary" aria-hidden="true" />
+              )}
             </div>
             <CardHeader className="p-4 pb-1">
               <CardTitle>
