@@ -13,7 +13,7 @@ export const getPlantsList = async (
     page: String(page),
   });
   const response = await api.get<PlantSpeciesListResponse>(
-    `/plant-species?${params}`,
+    `/api/plant-species?${params}`,
   );
   return response.data;
 };
@@ -22,7 +22,7 @@ export const getPlantDetails = async (
   plantId: number,
 ): Promise<PlantSpeciesDetails> => {
   const response = await api.get<PlantSpeciesDetails>(
-    `/plant-species/${plantId}`,
+    `/api/plant-species/${plantId}`,
   );
   return response.data;
 };
