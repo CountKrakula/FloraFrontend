@@ -8,7 +8,7 @@ type Props = {
   images: { isProfilePicture: boolean }[];
   selectedIndex: number;
 }
-export default function SubmitImage({ plant, images,  selectedIndex, }: Props) {
+export const SubmitImage = ({ plant, images,  selectedIndex, }: Props) => {
   const [content] = useState(PageContent);
   const [uploadedImage, setUploadedImage] = useState({
     url: "",

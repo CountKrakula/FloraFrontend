@@ -1,5 +1,6 @@
 import type { ChangeEventHandler } from "react";
 import { cn } from "cn"
+import "./checkbox.css";
 
 interface InputCheckboxProps {
   id: string;

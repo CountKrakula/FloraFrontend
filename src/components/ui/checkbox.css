@@ -1,0 +1,43 @@
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+.checkbox-row {
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.circle-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.375rem;
+  height: 1.375rem;
+  border: 0.125rem solid var(--color-lightgrey);
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  background-color: var(--color-white);
+}
+.checkbox-label {
+  font-size: 1rem;
+  flex: 1;
+  margin-left: var(--spacing-12, 0.75rem);
+}
+
+.circle-checkbox:checked {
+  background-color: var(--color-mint);
+  border-color: var(--color-mint);
+}
+
+.circle-checkbox:checked::after {
+  content: "✓";
+  color: var(--color-teal);
+  font-size: 0.875rem;
+  font-weight: bold;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+}
