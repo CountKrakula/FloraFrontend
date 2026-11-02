@@ -15,3 +15,6 @@ export const updateCareTask = (plantId: number, id: number, input: CareTaskInput
 
 export const deleteCareTask = (plantId: number, id: number) =>
   del<void>(`${baseUrl(plantId)}/${id}`);
+
+export const completeCareTask = (plantId: number, id: number) =>
+  post<CareTaskDto>(`${baseUrl(plantId)}/${id}/complete`, {});
