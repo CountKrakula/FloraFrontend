@@ -5,7 +5,31 @@ import { getPlants } from "@/service/plantService";
 import type { DashboardCareLog, DashboardTask } from "@/types/dashboard";
 import type { PlantDto } from "@/types/plant";
 
-export const useDashboard = (isAuthenticated: boolean) => {
+const DASHBOARD_PAGE_SIZE = 50;
+
+const getAllPlants = async () => {
+  const firstPage = await getPlants(1, DASHBOARD_PAGE_SIZE);
+  const remainingPages = await Promise.all(
+    Array.from({ length: Math.max(firstPage.totalPages - 1, 0) }, (_, index) =>
+      getPlants(index + 2, DASHBOARD_PAGE_SIZE),
+    ),
+  );
+
+  return [firstPage, ...remainingPages].flatMap((page) => page.items);
+};
+
+const getAllCareLogs = async (plantId: number) => {
+  const firstPage = await getCareLogs(plantId, 1, DASHBOARD_PAGE_SIZE);
+  const remainingPages = await Promise.all(
+    Array.from({ length: Math.max(firstPage.totalPages - 1, 0) }, (_, index) =>
+      getCareLogs(plantId, index + 2, DASHBOARD_PAGE_SIZE),
+    ),
+  );
+
+  return [firstPage, ...remainingPages].flatMap((page) => page.items);
+};
+
+export const useDashboard = () => {
   const [plants, setPlants] = useState<PlantDto[]>([]);
   const [careTasks, setCareTasks] = useState<DashboardTask[]>([]);
   const [careLogs, setCareLogs] = useState<DashboardCareLog[]>([]);
@@ -13,13 +37,6 @@ export const useDashboard = (isAuthenticated: boolean) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      setPlants([]);
-      setCareTasks([]);
-      setCareLogs([]);
-      return;
-    }
-
     let isCurrent = true;
 
     const loadDashboard = async () => {
@@ -27,13 +44,12 @@ export const useDashboard = (isAuthenticated: boolean) => {
       setError(null);
 
       try {
-        const plantResult = await getPlants();
-        const userPlants = plantResult.items;
+        const userPlants = await getAllPlants();
         const plantDetails = await Promise.all(
           userPlants.map(async (plant) => {
             const [plantTasks, plantCareLogs] = await Promise.all([
               getCareTasks(plant.id),
-              getCareLogs(plant.id),
+              getAllCareLogs(plant.id),
             ]);
 
             return {
@@ -41,7 +57,7 @@ export const useDashboard = (isAuthenticated: boolean) => {
                 ...task,
                 plantName: plant.name,
               })),
-              careLogs: plantCareLogs.items.map((careLog) => ({
+              careLogs: plantCareLogs.map((careLog) => ({
                 ...careLog,
                 plantName: plant.name,
               })),
@@ -70,7 +86,7 @@ export const useDashboard = (isAuthenticated: boolean) => {
     return () => {
       isCurrent = false;
     };
-  }, [isAuthenticated]);
+  }, []);
 
   return { plants, careTasks, careLogs, isLoading, error };
 };

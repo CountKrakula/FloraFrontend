@@ -1,6 +1,6 @@
 import { AuthenticatedDashboard } from "@/components/home/AuthenticatedDashboard";
 import { VisitorHome } from "@/components/home/VisitorHome";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/auth-context";
 
 export const HomePage = () => {
   const { isAuthenticated, isCheckingAuthentication } = useAuth();

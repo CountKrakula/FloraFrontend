@@ -1,13 +1,6 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { checkAuthentication } from "@/service/AuthService";
-
-type AuthContextValue = {
-  isAuthenticated: boolean;
-  isCheckingAuthentication: boolean;
-  setAuthenticated: (isAuthenticated: boolean) => void;
-};
-
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+import { AuthContext } from "./auth-context";
 
 export const AuthProvider = ({ children }: React.PropsWithChildren) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -40,14 +33,4 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error("useAuth must be used inside AuthProvider");
-  }
-
-  return context;
 };

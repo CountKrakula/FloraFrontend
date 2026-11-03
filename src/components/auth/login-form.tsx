@@ -2,7 +2,7 @@ import { cn } from "cn"
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from 'react'
 import { loginWithCookie } from "@/service/AuthService"
-import { useAuth } from "@/context/AuthContext"
+import { useAuth } from "@/context/auth-context"
 
 
 import { Button } from "@/components/ui/button"

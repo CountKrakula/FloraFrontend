@@ -11,7 +11,7 @@ import { useDashboard } from "@/hooks/useDashboard";
 import type { DashboardPanel } from "@/types/dashboard";
 
 export const AuthenticatedDashboard = () => {
-  const { plants, careTasks, careLogs, isLoading, error } = useDashboard(true);
+  const { plants, careTasks, careLogs, isLoading, error } = useDashboard();
   const [activePanel, setActivePanel] = useState<DashboardPanel>(null);
 
   const nextWeek = new Date();

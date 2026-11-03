@@ -10,7 +10,7 @@ import {
   UserPlus,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/auth-context";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import {
