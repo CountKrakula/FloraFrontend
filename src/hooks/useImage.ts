@@ -6,14 +6,17 @@ const api = axios.create({
     withCredentials: true,
 });
 
+export const getImageUrl = (imageUrl: string): string =>
+  new URL(imageUrl, import.meta.env.VITE_API_BASE_URL).toString();
+
 export const getImages = async (plantId: number): Promise<ImageDTO[]> => {
-    try {
-        const response = await api.get<ImageDTO[]>(`/api/plants/${plantId}/images`);
-        return response.data;
-    } catch (error) {
-        console.error("Error fetching images:", error);
-        throw error;
-    }
+  const response = await api.get<ImageDTO[]>(`/api/plants/${plantId}/images`);
+
+  if (response.status === 204) {
+    return [];
+  }
+
+  return response.data;
 };
 
 export const createImage = async (
@@ -27,7 +30,7 @@ export const createImage = async (
         formData.append("plantId", String(plantId));
         formData.append("isProfilePicture", String(isProfilePicture));
 
-        const response = await api.post("/images", formData);
+        const response = await api.post(`/api/plants/${plantId}/images`, formData);
         return response.data;
     } catch (error) {
         console.error("Error creating image:", error);
@@ -35,9 +38,13 @@ export const createImage = async (
     }
 };
 
-export const updateImage = async (imageId: number, image: any) => {
+export const updateImage = async (file: File, plantId: number, imageId: number) => {
     try {
-        const response = await api.put(`/api/plants/{plantId:int}/images/${imageId}`, image);
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("plantId", String(plantId));
+
+        const response = await api.put(`/api/plants/${plantId}/images/${imageId}`, formData);
         return response.data;
     } catch (error) {
         console.error("Error updating image:", error);
