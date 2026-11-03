@@ -2,6 +2,7 @@ import { cn } from "cn"
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from 'react'
 import { loginWithCookie } from "@/service/AuthService"
+import { useAuth } from "@/context/AuthContext"
 
 
 import { Button } from "@/components/ui/button"
@@ -27,11 +28,13 @@ export function LoginForm({
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
+  const { setAuthenticated } = useAuth()
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     try {
       await loginWithCookie(email, password);
+      setAuthenticated(true);
       navigate("/");
     } catch (err) {
       console.log("Error", err);

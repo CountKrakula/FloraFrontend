@@ -9,8 +9,8 @@ import {
   Sun,
   UserPlus,
 } from "lucide-react";
-import { NavLink, useLocation } from "react-router-dom";
-import { checkAuthentication } from "@/service/AuthService";
+import { NavLink } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import {
@@ -40,29 +40,10 @@ const authenticatedLinks = [
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(
     () => window.localStorage.getItem("flora-theme") === "dark",
   );
-  const location = useLocation();
-
-  useEffect(() => {
-    let isCurrent = true;
-
-    const updateAuthentication = async () => {
-      const authenticated = await checkAuthentication();
-      if (isCurrent) {
-        setIsAuthenticated(authenticated);
-      }
-    };
-
-    void updateAuthentication();
-
-    return () => {
-      isCurrent = false;
-    };
-  }, [location.pathname]);
-
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDarkMode);
     window.localStorage.setItem("flora-theme", isDarkMode ? "dark" : "light");
