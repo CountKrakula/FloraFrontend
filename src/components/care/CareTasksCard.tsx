@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,14 +20,16 @@ import {
   updateCareTask,
   deleteCareTask,
 } from "@/service/careTaskService";
+import { parseUtcDate } from "@/lib/date";
 
 type Props = {
   plantId: number;
+  // The page owns the list, so the watering section updates at the same time
+  tasks: CareTaskDto[];
+  onTasksChange: (tasks: CareTaskDto[]) => void;
 };
 
-export const CareTasksCard = ({ plantId }: Props) => {
-  // All care tasks for this plant
-  const [tasks, setTasks] = useState<CareTaskDto[]>([]);
+export const CareTasksCard = ({ plantId, tasks, onTasksChange }: Props) => {
   const [error, setError] = useState<string | null>(null);
 
   // The dialog is used both for adding and editing.
@@ -36,13 +38,6 @@ export const CareTasksCard = ({ plantId }: Props) => {
   const [editing, setEditing] = useState<CareTaskDto | null>(null);
   const [type, setType] = useState<CareTaskType>("Watering");
   const [intervalDays, setIntervalDays] = useState(7);
-
-  // Fetch the care tasks from the backend when the card loads
-  useEffect(() => {
-    getCareTasks(plantId)
-      .then(setTasks)
-      .catch(() => setError("Could not load care tasks."));
-  }, [plantId]);
 
   function openAdd() {
     setEditing(null);
@@ -67,10 +62,10 @@ export const CareTasksCard = ({ plantId }: Props) => {
       if (editing) {
         await updateCareTask(plantId, editing.id, input);
         // Fetch again, because the backend calculates a new "next due" date
-        setTasks(await getCareTasks(plantId));
+        onTasksChange(await getCareTasks(plantId));
       } else {
         const created = await createCareTask(plantId, input);
-        setTasks((prev) => [...prev, created]);
+        onTasksChange([...tasks, created]);
       }
       setOpen(false);
       setError(null);
@@ -83,7 +78,7 @@ export const CareTasksCard = ({ plantId }: Props) => {
   async function handleDelete(id: number) {
     try {
       await deleteCareTask(plantId, id);
-      setTasks((prev) => prev.filter((task) => task.id !== id));
+      onTasksChange(tasks.filter((task) => task.id !== id));
     } catch {
       setError("Could not delete the care task.");
     }
@@ -106,7 +101,7 @@ export const CareTasksCard = ({ plantId }: Props) => {
         )}
 
         {/* Empty state when there are no tasks */}
-        {tasks.length === 0 && !error && (
+        {tasks.length === 0 && (
           <p className="text-sm text-muted-foreground">No care tasks yet</p>
         )}
 
@@ -117,7 +112,7 @@ export const CareTasksCard = ({ plantId }: Props) => {
               <p className="font-medium">{task.type}</p>
               <p className="text-muted-foreground">
                 Every {task.intervalDays} days · Next:{" "}
-                {new Date(task.nextDueAt).toLocaleDateString()}
+                {parseUtcDate(task.nextDueAt).toLocaleDateString()}
               </p>
             </div>
             <Button
