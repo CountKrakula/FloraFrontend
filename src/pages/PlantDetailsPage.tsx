@@ -1,8 +1,6 @@
 // PlantDetailsPage.tsx
-import { CareInfoCard } from "@/components/care/CareInfoCard";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import type { Care } from "@/components/care/CareInfoDialog";
 import type { Log } from "@/components/care/CareLogCard";
 import { CareLogCard } from "@/components/care/CareLogCard";
 import type { Plant as PlantInfo } from "@/components/plants/PlantInfoDialog";
@@ -32,16 +30,6 @@ export const PlantDetailsPage = () => {
 
   // Care tasks from the backend, shared by the watering section and the care schedule card
   const [careTasks, setCareTasks] = useState<CareTaskDto[]>([]);
-
-  // The saved care values (mock until we decide what to do with this card)
-  const [care, setCare] = useState<Care>({
-    watering: "Every 7 days",
-    sunlight: "Bright, indirect",
-    soil: "Well-draining mix",
-    fertilizing: "Monthly in summer",
-    repotting: "Every 2 years",
-    pruning: "Spring",
-  });
 
   // Care log (mock until CareLog is connected)
   const [logs, setLogs] = useState<Log[]>([
@@ -177,9 +165,6 @@ export const PlantDetailsPage = () => {
 
         {/* Health log card */}
         <HealthLogCard plantId={plantId} />
-
-        {/* Care information card */}
-        <CareInfoCard care={care} onSave={setCare} />
 
         {/* Care schedule from the backend */}
         <CareTasksCard plantId={plantId} tasks={careTasks} onTasksChange={setCareTasks} />
