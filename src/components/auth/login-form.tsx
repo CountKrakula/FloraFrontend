@@ -2,8 +2,6 @@ import { cn } from "cn"
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from 'react'
 import { loginWithCookie } from "@/service/AuthService"
-
-
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -17,6 +15,7 @@ import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
+  FieldError
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
@@ -26,6 +25,8 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  // one error state for multiple errors and fields
+  const [error, setError] = useState('');
   const navigate = useNavigate()
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
@@ -34,6 +35,7 @@ export function LoginForm({
       await loginWithCookie(email, password);
       navigate("/");
     } catch (err) {
+      setError("Incorrect email or password. Try again.")
       console.log("Error", err);
     }
   }
@@ -72,6 +74,7 @@ export function LoginForm({
                 <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
               </Field>
               <Field>
+                <FieldError>{error}</FieldError>
                 <Button type="submit">Login</Button>
 
                 <FieldDescription className="text-center">
