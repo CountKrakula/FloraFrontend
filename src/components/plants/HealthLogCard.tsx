@@ -35,7 +35,7 @@ export const HealthLogCard = ({ plantId }: Props) => {
 
   // Fetch the logs from the backend when the card loads
   useEffect(() => {
-        getHealthLogs(plantId)
+    getHealthLogs(plantId)
       .then((result) => setLogs(result.items))
       .catch(() => setError("Could not load health logs."));
   }, [plantId]);

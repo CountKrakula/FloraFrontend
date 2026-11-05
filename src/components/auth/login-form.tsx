@@ -2,6 +2,9 @@ import { cn } from "cn"
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from 'react'
 import { loginWithCookie } from "@/service/AuthService"
+import { useAuth } from "@/context/auth-context"
+
+
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -28,11 +31,13 @@ export function LoginForm({
   // one error state for multiple errors and fields
   const [error, setError] = useState('');
   const navigate = useNavigate()
+  const { setAuthenticated } = useAuth()
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     try {
       await loginWithCookie(email, password);
+      setAuthenticated(true);
       navigate("/");
     } catch {
       setError("Incorrect email or password. Try again.")

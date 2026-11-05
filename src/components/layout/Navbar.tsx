@@ -1,6 +1,16 @@
-﻿import { useState } from "react";
-import { House, Leaf, LibraryBig, LogIn } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  House,
+  Info,
+  Leaf,
+  LibraryBig,
+  LogIn,
+  Moon,
+  Sun,
+  UserPlus,
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "@/context/auth-context";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import {
@@ -15,18 +25,42 @@ import {
 import { LogoutButton } from "../auth/LogoutButton";
 import { MenuIcon } from "./MenuIcon";
 
-const links = [
+const publicLinks = [
+  { to: "/", label: "Home", icon: House },
+  { to: "/about", label: "About us", icon: Info },
+  { to: "/login", label: "Log in", icon: LogIn },
+  { to: "/register", label: "Sign up", icon: UserPlus },
+];
+
+const authenticatedLinks = [
   { to: "/", label: "Home", icon: House },
   { to: "/my-plants", label: "My plants", icon: Leaf },
   { to: "/plant-library", label: "Plant library", icon: LibraryBig },
-  { to: "/login", label: "Login", icon: LogIn },
 ];
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const [isDarkMode, setIsDarkMode] = useState(
+    () => window.localStorage.getItem("flora-theme") === "dark",
+  );
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDarkMode);
+    window.localStorage.setItem("flora-theme", isDarkMode ? "dark" : "light");
+  }, [isDarkMode]);
+
+  const links = isAuthenticated ? authenticatedLinks : publicLinks;
 
   return (
-    <div className="app-nav flex justify-end p-4">
+    <header className="app-nav relative flex items-center justify-between p-4">
+      <NavLink to="/" aria-label="Flora startsida" className="text-primary">
+        <Leaf className="size-9 sm:size-10" aria-hidden="true" />
+      </NavLink>
+
+      <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 font-serif text-2xl font-bold italic tracking-wider text-primary sm:text-3xl md:text-4xl">
+        Flora
+      </span>
+
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger
           render={
@@ -83,10 +117,24 @@ export const Navbar = () => {
             </ul>
           </nav>
           <SheetFooter className="border-t border-border p-4">
-            <LogoutButton />
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full justify-between"
+              aria-pressed={isDarkMode}
+              onClick={() => setIsDarkMode((current) => !current)}
+            >
+              {isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+              {isDarkMode ? (
+                <Sun className="size-4" aria-hidden="true" />
+              ) : (
+                <Moon className="size-4" aria-hidden="true" />
+              )}
+            </Button>
+            {isAuthenticated ? <LogoutButton /> : null}
           </SheetFooter>
         </SheetContent>
       </Sheet>
-    </div>
+    </header>
   );
 };
