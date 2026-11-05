@@ -24,7 +24,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('')
-    // one error state for multiple errors and fields
+  // one error state for multiple errors and fields
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -55,7 +55,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       navigate("/login");
     } catch (err) {
       setError("Could not create your account. Please try again.")
-      console.log("Error", err);
     }
   }
 
@@ -76,7 +75,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               <Input
                 id="email"
                 type="email"
-                placeholder="m@example.com" value={email} onChange={(e) => {setEmail(e.target.value); setError('')}}
+                placeholder="m@example.com" value={email} onChange={(e) => { setEmail(e.target.value); setError('') }}
                 required
               />
               <FieldDescription>
@@ -86,7 +85,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             </Field>
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input id="password" type="password" value={password} onChange={(e) => {setPassword(e.target.value); setError('')}} required />
+              <Input id="password" type="password" value={password} onChange={(e) => { setPassword(e.target.value); setError('') }} required />
               <FieldDescription>
                 Must be at least 6 characters and include an uppercase letter, a lowercase letter, a number, and a special character.
               </FieldDescription>
@@ -95,7 +94,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               <FieldLabel htmlFor="confirm-password">
                 Confirm Password
               </FieldLabel>
-              <Input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => {setConfirmPassword(e.target.value); setError('')}} required />
+              <Input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => { setConfirmPassword(e.target.value); setError('') }} required />
               <FieldDescription>Please confirm your password.</FieldDescription>
             </Field>
             <FieldGroup>

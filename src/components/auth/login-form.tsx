@@ -36,7 +36,6 @@ export function LoginForm({
       navigate("/");
     } catch (err) {
       setError("Incorrect email or password. Try again.")
-      console.log("Error", err);
     }
   }
   return (
@@ -57,7 +56,7 @@ export function LoginForm({
                   id="email"
                   type="email"
                   placeholder="m@example.com"
-                  value={email} onChange={(e) => {setEmail(e.target.value); setError('')}}
+                  value={email} onChange={(e) => { setEmail(e.target.value); setError('') }}
                   required
                 />
               </Field>
@@ -71,7 +70,7 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" value={password} onChange={(e) => {setPassword(e.target.value); setError('')}} required />
+                <Input id="password" type="password" value={password} onChange={(e) => { setPassword(e.target.value); setError('') }} required />
               </Field>
               <Field>
                 <FieldError>{error}</FieldError>
