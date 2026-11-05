@@ -1,6 +1,4 @@
 // PlantDetailsPage.tsx
-import { useEffect, useState } from "react";
-import { CareInfoCard } from "@/components/care/CareInfoCard";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { Log } from "@/components/care/CareLogCard";
