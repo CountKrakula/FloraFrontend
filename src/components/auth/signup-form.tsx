@@ -53,7 +53,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     try {
       await register(email, password);
       navigate("/login");
-    } catch (err) {
+    } catch {
       setError("Could not create your account. Please try again.")
     }
   }

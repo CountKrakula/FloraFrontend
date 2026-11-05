@@ -34,7 +34,7 @@ export function LoginForm({
     try {
       await loginWithCookie(email, password);
       navigate("/");
-    } catch (err) {
+    } catch {
       setError("Incorrect email or password. Try again.")
     }
   }
