@@ -5,11 +5,7 @@ import { EmptyState } from "@/components/plants/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getPlants, createPlant } from "@/service/plantService";
@@ -30,10 +26,9 @@ export const MyPlantsPage: React.FC = () => {
 
   // Hämtar användarens växter från backend när sidan eller aktuellt sidnummer ändras
   useEffect(() => {
-    setLoading(true);
     getPlants(currentPage, 8)
       .then((data) => {
-        setPlants(data.items);
+        setPlants(data.items ?? []);
         setTotalPages(data.totalPages);
       })
       .catch(() => setError("Could not load your plants. Are you logged in?"))
@@ -75,14 +70,19 @@ export const MyPlantsPage: React.FC = () => {
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">My Plants</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            My Plants
+          </h1>
           <p className="text-muted-foreground mt-1">
             An overview of all your registered house plants
           </p>
         </div>
 
         {plants.length > 0 && !loading && (
-          <Button onClick={handleAddPlant} className="gap-2 self-start sm:self-auto">
+          <Button
+            onClick={handleAddPlant}
+            className="gap-2 self-start sm:self-auto"
+          >
             <Plus className="h-4 w-4" />
             Add plant
           </Button>
@@ -121,7 +121,10 @@ export const MyPlantsPage: React.FC = () => {
                 variant="outline"
                 size="sm"
                 disabled={currentPage <= 1}
-                onClick={() => setCurrentPage((prev) => prev - 1)}
+                onClick={() => {
+                  setLoading(true);
+                  return setCurrentPage((prev) => prev - 1);
+                }}
               >
                 Previous
               </Button>
@@ -132,7 +135,10 @@ export const MyPlantsPage: React.FC = () => {
                 variant="outline"
                 size="sm"
                 disabled={currentPage >= totalPages}
-                onClick={() => setCurrentPage((prev) => prev + 1)}
+                onClick={() => {
+                  setLoading(true);
+                  return setCurrentPage((prev) => prev + 1);
+                }}
               >
                 Next
               </Button>
