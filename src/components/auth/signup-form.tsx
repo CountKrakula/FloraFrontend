@@ -15,6 +15,7 @@ import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
+  FieldError
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
@@ -23,6 +24,8 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('')
+  // one error state for multiple errors and fields
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
@@ -39,19 +42,19 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       password.length >= 6 && hasUpper && hasLower && hasNumber && hasSpecial
 
     if (!validPassword) {
-      console.log("Password does not meet requirements")
+      setError("Password does not meet requirements")
       return
     }
     if (password !== confirmPassword) {
-      console.log("Passwords do not match")
+      setError("Passwords do not match")
       return
     }
 
     try {
       await register(email, password);
       navigate("/login");
-    } catch (err) {
-      console.log("Error", err);
+    } catch {
+      setError("Could not create your account. Please try again.")
     }
   }
 
@@ -72,7 +75,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               <Input
                 id="email"
                 type="email"
-                placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)}
+                placeholder="m@example.com" value={email} onChange={(e) => { setEmail(e.target.value); setError('') }}
                 required
               />
               <FieldDescription>
@@ -82,7 +85,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             </Field>
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <Input id="password" type="password" value={password} onChange={(e) => { setPassword(e.target.value); setError('') }} required />
               <FieldDescription>
                 Must be at least 6 characters and include an uppercase letter, a lowercase letter, a number, and a special character.
               </FieldDescription>
@@ -91,11 +94,12 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               <FieldLabel htmlFor="confirm-password">
                 Confirm Password
               </FieldLabel>
-              <Input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+              <Input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => { setConfirmPassword(e.target.value); setError('') }} required />
               <FieldDescription>Please confirm your password.</FieldDescription>
             </Field>
             <FieldGroup>
               <Field>
+                <FieldError>{error}</FieldError>
                 <Button type="submit">Create Account</Button>
 
                 <FieldDescription className="px-6 text-center">

@@ -18,6 +18,7 @@ import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
+  FieldError
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
@@ -27,6 +28,8 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  // one error state for multiple errors and fields
+  const [error, setError] = useState('');
   const navigate = useNavigate()
   const { setAuthenticated } = useAuth()
 
@@ -36,8 +39,8 @@ export function LoginForm({
       await loginWithCookie(email, password);
       setAuthenticated(true);
       navigate("/");
-    } catch (err) {
-      console.log("Error", err);
+    } catch {
+      setError("Incorrect email or password. Try again.")
     }
   }
   return (
@@ -58,7 +61,7 @@ export function LoginForm({
                   id="email"
                   type="email"
                   placeholder="m@example.com"
-                  value={email} onChange={(e) => setEmail(e.target.value)}
+                  value={email} onChange={(e) => { setEmail(e.target.value); setError('') }}
                   required
                 />
               </Field>
@@ -72,9 +75,10 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <Input id="password" type="password" value={password} onChange={(e) => { setPassword(e.target.value); setError('') }} required />
               </Field>
               <Field>
+                <FieldError>{error}</FieldError>
                 <Button type="submit">Login</Button>
 
                 <FieldDescription className="text-center">
