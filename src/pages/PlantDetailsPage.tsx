@@ -1,5 +1,5 @@
 // PlantDetailsPage.tsx
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { Log } from "@/components/care/CareLogCard";
 import { CareLogCard } from "@/components/care/CareLogCard";
@@ -7,12 +7,17 @@ import type { Plant as PlantInfo } from "@/components/plants/PlantInfoDialog";
 import { PlantInfoCard } from "@/components/plants/PlantInfoCard";
 import { Droplet, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPlant, updatePlant, deletePlant } from "@/service/plantService";
 import { HealthLogCard } from "@/components/plants/HealthLogCard";
 import { CareTasksCard } from "@/components/care/CareTasksCard";
 import { getCareTasks, completeCareTask } from "@/service/careTaskService";
 import type { CareTaskDto } from "@/types/careTask";
 import { parseUtcDate } from "@/lib/date";
+import { SubmitImage } from "@/components/images/SubmitPlantImage";
+import  {ImageInfoCard}  from "@/components/images/ImageInfoCard";
+import { getImageUrl, getImages } from "@/hooks/useImage";
+import type { ImageDTO } from "@/types/image";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=500&q=80";
@@ -27,6 +32,32 @@ export const PlantDetailsPage = () => {
   const [info, setInfo] = useState<PlantInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [images, setImages] = useState<ImageDTO[]>([]);
+  const [selectedImageId, setSelectedImageId] = useState<number | null>(null);
+  const [imagesError, setImagesError] = useState<string | null>(null);
+  const [imagesLoading, setImagesLoading] = useState(true);
+
+  const loadPlantImages = useCallback(() => {
+    return getImages(plantId)
+      .then((fetchedImages) => {
+        setImages(fetchedImages);
+        setSelectedImageId((currentImageId) =>
+          fetchedImages.some((image) => image.imageId === currentImageId)
+            ? currentImageId
+            : fetchedImages[0]?.imageId ?? null
+        );
+        setImagesError(null);
+      })
+      .catch((imageLoadError: unknown) => {
+        console.error("Error fetching plant images:", imageLoadError);
+        setImagesError("Could not load plant images.");
+      })
+      .finally(() => setImagesLoading(false));
+  }, [plantId]);
+
+  useEffect(() => {
+    void loadPlantImages();
+  }, [loadPlantImages]);
 
   // Care tasks from the backend, shared by the watering section and the care schedule card
   const [careTasks, setCareTasks] = useState<CareTaskDto[]>([]);
@@ -131,14 +162,35 @@ export const PlantDetailsPage = () => {
   // No plant with that id (or it belongs to someone else)
   if (!info) return <p className="p-8 text-center">{error ?? "Plant not found"}</p>;
 
+  const selectedImage = images.find((image) => image.imageId === selectedImageId);
+
   return (
     <div className="flex items-center justify-center px-4 py-8 md:py-16">
       <div className="w-full max-w-sm md:max-w-md space-y-4">
-        <img
-          src={DEFAULT_IMAGE}
-          alt={info.name}
-          className="h-44 w-full rounded-lg object-cover"
-        />
+        <Card>
+          <CardHeader>
+            <CardTitle>Plant images</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <img
+              src={selectedImage ? getImageUrl(selectedImage.url) : DEFAULT_IMAGE}
+              alt={info.name}
+              className="h-44 w-full rounded-lg object-cover"
+            />
+            <ImageInfoCard
+              images={images}
+              selectedImageId={selectedImageId}
+              onImageSelect={(image) => setSelectedImageId(image.imageId)}
+            />
+            <SubmitImage
+              plant={{ PlantId: plantId, name: info.name }}
+              images={images}
+              selectedIndex={images.findIndex((image) => image.imageId === selectedImageId)}
+              canCreate={!imagesLoading && !imagesError}
+              onSaved={loadPlantImages}
+            />
+          </CardContent>
+        </Card>
         <div>
           <h1 className="text-xl font-medium">{info.name}</h1>
           <p className="text-sm text-muted-foreground">
@@ -163,6 +215,12 @@ export const PlantDetailsPage = () => {
 
         <PlantInfoCard plant={info} onSave={handleSaveInfo} />
 
+        {imagesError && (
+          <p className="text-sm text-destructive" role="alert">
+            {imagesError}
+          </p>
+        )}
+        
         {/* Health log card */}
         <HealthLogCard plantId={plantId} />
 
