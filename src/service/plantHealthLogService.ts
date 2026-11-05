@@ -7,8 +7,11 @@ import type { PagedResult } from "@/types/pagination";
 
 const BASE_URL = "api/planthealthlogs";
 
-export const getHealthLogs = (plantId: number) =>
-  get<PagedResult<PlantHealthLogDto>>(`${BASE_URL}/plant/${plantId}`);
+// The backend returns one page of logs at a time (newest first)
+export const getHealthLogs = (plantId: number, pageNumber = 1, pageSize = 20) =>
+  get<PagedResult<PlantHealthLogDto>>(
+    `${BASE_URL}/plant/${plantId}?pageNumber=${pageNumber}&pageSize=${pageSize}`
+  );
 
 export const createHealthLog = (dto: CreatePlantHealthLogDto) =>
   post<PlantHealthLogDto>(BASE_URL, dto);
