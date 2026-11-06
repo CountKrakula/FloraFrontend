@@ -7,6 +7,7 @@ import { PlantDetailsPage } from "./pages/PlantDetailsPage";
 import { PlantLibraryPage } from "./pages/PlantLibraryPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import { DeleteAccountForm } from './components/auth/DeleteAccountForm';
 
 
 export const Router = createBrowserRouter([
@@ -21,6 +22,7 @@ export const Router = createBrowserRouter([
       { path: "/my-plants", element: <MyPlantsPage /> },
       { path: "/plant-details/:id", element: <PlantDetailsPage /> },
       { path: "/plant-library", element: <PlantLibraryPage /> },
+      {path: "/test-delete", element: <DeleteAccountForm />},
     ],
   },
 ]);
