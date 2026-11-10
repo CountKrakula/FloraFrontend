@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getPlants, createPlant } from "@/service/plantService";
+import { FieldError } from "@/components/ui/field";
 
 export const MyPlantsPage: React.FC = () => {
   const [plants, setPlants] = useState<PlantDto[]>([]);
@@ -23,6 +24,7 @@ export const MyPlantsPage: React.FC = () => {
   const [name, setName] = useState<string>("");
   const [location, setLocation] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
+  const [formError, setFormError] = useState<string>("");
 
   // Hämtar användarens växter från backend när sidan eller aktuellt sidnummer ändras
   useEffect(() => {
@@ -36,13 +38,22 @@ export const MyPlantsPage: React.FC = () => {
   }, [currentPage]);
 
   const handleAddPlant = () => {
+    setFormError("");
     setIsAddModalOpen(true);
   };
 
   const handleSubmitPlant = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim() || !location.trim()) return;
+    if (!name.trim()) {
+      setFormError("Enter a name for your plant");
+      return;
+    }
+    if (!location.trim()) {
+      setFormError("Enter where your plant lives");
+      return;
+    }
+    setFormError("");
 
     const dto: CreatePlantDto = {
       name,
@@ -154,14 +165,15 @@ export const MyPlantsPage: React.FC = () => {
             Add a new plant
           </DialogTitle>
 
-          <form onSubmit={handleSubmitPlant} className="space-y-4">
+          {/* noValidate turns off the browser's own popups so our formError messages show instead */}
+          <form onSubmit={handleSubmitPlant} noValidate className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Plant Name *</Label>
               <Input
                 id="name"
                 placeholder="e.g. Monstera"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {setName(e.target.value); setFormError("");}}
                 required
               />
             </div>
@@ -172,7 +184,7 @@ export const MyPlantsPage: React.FC = () => {
                 id="location"
                 placeholder="e.g. Living Room Window"
                 value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                onChange={(e) => {setLocation(e.target.value); setFormError("");}}
                 required
               />
             </div>
@@ -183,10 +195,11 @@ export const MyPlantsPage: React.FC = () => {
                 id="notes"
                 placeholder="e.g. Needs watering twice a week"
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                onChange={(e) => {setNotes(e.target.value); setFormError("");}}
               />
             </div>
 
+            <FieldError>{formError}</FieldError>
             <div className="flex justify-end gap-2 pt-4">
               <Button
                 type="button"
