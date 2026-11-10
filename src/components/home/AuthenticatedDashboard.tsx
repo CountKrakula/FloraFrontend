@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Droplets, Leaf, NotebookPen } from "lucide-react";
+import { BellRing, Droplets, Leaf, NotebookPen } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -9,21 +9,32 @@ import {
 } from "@/components/ui/card";
 import { useDashboard } from "@/hooks/useDashboard";
 import type { DashboardPanel } from "@/types/dashboard";
+import { useUserCareTasksContext } from "@/hooks/useUserCareTasksContext";
+import { needsCareTaskAttention } from "@/lib/careTasks";
 
 export const AuthenticatedDashboard = () => {
-  const { plants, careTasks, careLogs, isLoading, error } = useDashboard();
+  const { plants, careLogs, isLoading, error } = useDashboard();
   const [activePanel, setActivePanel] = useState<DashboardPanel>(null);
+  const {
+    userCareTasks,
+    loading: tasksLoading,
+    error: tasksError,
+  } = useUserCareTasksContext();
 
+  const tasksNeedingAttention = userCareTasks.filter((task) =>
+    needsCareTaskAttention(task),
+  );
+  console.log({ userCareTasks, tasksNeedingAttention, tasksError });
   const nextWeek = new Date();
   nextWeek.setDate(nextWeek.getDate() + 7);
 
-  const upcomingTasks = careTasks
-    .filter((task) => new Date(task.nextDueAt) <= nextWeek)
-    .sort(
-      (first, second) =>
-        new Date(first.nextDueAt).getTime() -
-        new Date(second.nextDueAt).getTime(),
-    );
+  // const upcomingTasks = careTasks
+  //   .filter((task) => new Date(task.nextDueAt) <= nextWeek)
+  //   .sort(
+  //     (first, second) =>
+  //       new Date(first.nextDueAt).getTime() -
+  //       new Date(second.nextDueAt).getTime(),
+  //   );
 
   const recentCareLogs = [...careLogs]
     .sort(
@@ -70,7 +81,10 @@ export const AuthenticatedDashboard = () => {
           active={activePanel === "tasks"}
           expanded={activePanel === "tasks"}
           label="Care tasks · View details"
-          value={isLoading ? "—" : upcomingTasks.length}
+          value={tasksLoading || tasksError ? "—" : userCareTasks.length}
+          attentionCount={
+            tasksLoading || tasksError ? 0 : tasksNeedingAttention.length
+          }
           icon={<Droplets className="size-8 text-primary" aria-hidden="true" />}
           onClick={() => togglePanel("tasks")}
         />
@@ -79,7 +93,9 @@ export const AuthenticatedDashboard = () => {
           expanded={activePanel === "logs"}
           label="Care log · View details"
           value={isLoading ? "—" : careLogs.length}
-          icon={<NotebookPen className="size-8 text-primary" aria-hidden="true" />}
+          icon={
+            <NotebookPen className="size-8 text-primary" aria-hidden="true" />
+          }
           onClick={() => togglePanel("logs")}
         />
       </div>
@@ -93,10 +109,7 @@ export const AuthenticatedDashboard = () => {
               {activePanel === "logs" && "Recent care log entries"}
             </CardTitle>
             <CardDescription>
-              {activePanel === "plants" &&
-                "Your plants saved to your account."}
-              {activePanel === "tasks" &&
-                "Overdue tasks and tasks due within the next 7 days."}
+              {activePanel === "plants" && "Your plants saved to your account."}
               {activePanel === "logs" &&
                 "The latest care notes saved for your plants."}
             </CardDescription>
@@ -115,7 +128,9 @@ export const AuthenticatedDashboard = () => {
                 <ul className="space-y-3">
                   {plants.map((plant) => (
                     <li key={plant.id} className="rounded-xl bg-secondary p-4">
-                      <p className="font-medium text-foreground">{plant.name}</p>
+                      <p className="font-medium text-foreground">
+                        {plant.name}
+                      </p>
                       <p className="text-sm text-muted-foreground">
                         {plant.location}
                       </p>
@@ -124,27 +139,31 @@ export const AuthenticatedDashboard = () => {
                 </ul>
               )
             ) : activePanel === "tasks" ? (
-              upcomingTasks.length === 0 ? (
+              tasksNeedingAttention.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   No overdue or upcoming care tasks.
                 </p>
               ) : (
                 <ul className="space-y-3">
-                  {upcomingTasks.map((task) => (
+                  {tasksNeedingAttention.map((task) => (
                     <li
                       key={`${task.plantId}-${task.id}`}
-                      className="flex items-center justify-between gap-4 rounded-xl bg-secondary p-4"
+                      className="flex items-center justify-between gap-4 rounded-xl border border-amber-200 border-l-4 border-l-amber-500 bg-amber-50 p-4"
                     >
                       <div>
                         <p className="font-medium text-foreground">
                           {task.plantName}
                         </p>
-                        <p className="text-sm text-muted-foreground">
-                          {task.type} · Every {task.intervalDays} days
-                        </p>
+                        <div className="flex gap-2 items-center">
+                          <BellRing className="size-4" aria-hidden="true" />
+
+                          <p className="text-sm text-muted-foreground">
+                            {task.type}
+                          </p>
+                        </div>
                       </div>
                       <time className="shrink-0 text-sm text-muted-foreground">
-                        {formatDate(task.nextDueAt)}
+                        Due {formatDate(task.nextDueAt)}
                       </time>
                     </li>
                   ))}
@@ -188,6 +207,7 @@ type DashboardSummaryCardProps = {
   expanded: boolean;
   label: string;
   value: number | string;
+  attentionCount?: number;
   icon: React.ReactNode;
   onClick: () => void;
 };
@@ -197,6 +217,7 @@ const DashboardSummaryCard = ({
   expanded,
   label,
   value,
+  attentionCount = 0,
   icon,
   onClick,
 }: DashboardSummaryCardProps) => (
@@ -210,12 +231,26 @@ const DashboardSummaryCard = ({
       onClick={onClick}
       className="w-full rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <CardContent className="flex items-center gap-4 p-5">
-        {icon}
-        <div>
-          <p className="text-2xl font-bold text-foreground">{value}</p>
-          <p className="text-sm text-muted-foreground">{label}</p>
+      <CardContent className="flex flex-col gap-3 p-5">
+        <div className="flex items-center gap-4">
+          {" "}
+          {icon}
+          <div>
+            <p className="text-2xl font-bold text-foreground">{value}</p>
+            <p className="text-sm text-muted-foreground">{label}</p>
+          </div>
         </div>
+        {attentionCount > 0 && (
+          <div className="mt-4 flex items-center gap-2 border-t pt-3 text-sm text-amber-700 dark:text-amber-400">
+            <BellRing className="size-4" aria-hidden="true" />
+            <span>
+              {attentionCount}{" "}
+              {attentionCount === 1
+                ? "task needs attention"
+                : "tasks need attention"}
+            </span>{" "}
+          </div>
+        )}
       </CardContent>
     </button>
   </Card>
