@@ -41,13 +41,12 @@ export const SubmitImage = ({
     }
     setUploadedImage({ url: URL.createObjectURL(file) });
     setSelectedFileName(file.name);
-    if (images.length === 0 && canCreate) {
+    if (!canCreate) return;
+    if (selectedImage) {
+      await saveImage("edit");
+    } else if (images.length === 0) {
       await saveImage("create");
     }
-  }
-
-  async function editImage() {
-    await saveImage("edit");
   }
 
   async function saveImage(action: "create" | "edit") {
@@ -152,15 +151,15 @@ export const SubmitImage = ({
               Create
             </Button>
           )}
-          {selectedImage && (
+          {selectedImage && status === "Failed" && (
             <Button
               type="button"
-              onClick={editImage}
-              disabled={status === "Loading"}
+              onClick={() => saveImage("edit")}
+              disabled={!canCreate}
               variant="outline"
               size="sm"
             >
-              Edit
+              Retry edit
             </Button>
           )}
         </div>
