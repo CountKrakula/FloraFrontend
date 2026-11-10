@@ -1,4 +1,4 @@
-import type { Image } from "./image";
+import type { ImageDTO } from "./image";
 
 export type Plant = {
   plantId: number;
@@ -6,7 +6,7 @@ export type Plant = {
   notes?: string | null;
   createdAt: string;
   userId: number;
-  plantImages?: Image[];
+  plantImages?: ImageDTO[];
 };
 
 export type CreatePlantDto = {

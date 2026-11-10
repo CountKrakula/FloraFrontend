@@ -5,6 +5,8 @@ import InputCheckbox from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import type { ImageDTO } from "@/types/image";
 
+const SHOW_PROFILE_PICTURE_CHECKBOX = false;
+
 type Props = {
   plant: { PlantId: number; name: string };
   images: ImageDTO[];
@@ -31,7 +33,7 @@ export const SubmitImage = ({
   const [errors, setErrors] = useState<string[]>([]);
   const selectedImage = images[selectedIndex];
 
-  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
     if (uploadedImage.url) {
@@ -39,11 +41,9 @@ export const SubmitImage = ({
     }
     setUploadedImage({ url: URL.createObjectURL(file) });
     setSelectedFileName(file.name);
-  }
-
-  async function submitImage(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    await saveImage("create");
+    if (images.length === 0 && canCreate) {
+      await saveImage("create");
+    }
   }
 
   async function editImage() {
@@ -55,7 +55,7 @@ export const SubmitImage = ({
     setStatus("Idle");
 
     if (action === "edit" && !selectedImage) {
-      setErrors(["Välj en bild att redigera först"]);
+      setErrors(["Choose a picture to edit"]);
       setStatus("Failed");
       return;
     }
@@ -65,7 +65,7 @@ export const SubmitImage = ({
       const file = fileInputRef.current?.files?.[0];
 
       if (!file) {
-        setErrors(["Välj en fil först"]);
+        setErrors(["Choose a file first"]);
         setStatus("Failed");
         return;
       }
@@ -85,7 +85,7 @@ export const SubmitImage = ({
     } catch (error) {
       console.error(`Error ${action === "create" ? "creating" : "updating"} image:`, error);
       setStatus("Failed");
-      setErrors([`Kunde inte ${action === "create" ? "ladda upp" : "uppdatera"} bilden. Försök igen senare.`]);
+      setErrors([`Could not ${action === "create" ? "upload" : "update"} the image. Please try again later.`]);
     }
   }
 
@@ -98,13 +98,14 @@ export const SubmitImage = ({
 
   return (
     <section>
-      <form onSubmit={submitImage} className="upload-form flex flex-col items-start gap-3">
+      <div className="upload-form flex flex-col items-start gap-3">
         <div className="flex flex-col items-start gap-2">
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={() => fileInputRef.current?.click()}
+            disabled={!canCreate || status === "Loading"}
           >
             {content["select-button"]}
           </Button>
@@ -117,31 +118,34 @@ export const SubmitImage = ({
             tabIndex={-1}
           />
           <span className="text-sm text-muted-foreground" aria-live="polite">
-            {selectedFileName || "Ingen fil är vald"}
+            {selectedFileName || "No file selected"}
           </span>
         </div>
         {uploadedImage.url && (
           <img
             src={uploadedImage.url}
-            alt="Förhandsgranskning av bilden du valde"
-            className="submitted-image"
+            alt="Preview"
+            className="h-44 w-full rounded-lg object-cover"
           />
         )}
-        <div className="profile-picture-checkbox">
-          <InputCheckbox
-            id={`profile-picture-${selectedIndex}`}
-            name="isProfilePicture"
-            label={content["profile-image-checkbox"]}
-            checked={isProfilePicture}
-            disabled={hasProfileImage}
-            onChange={(e) => setIsProfilePicture(e.target.checked)}
-          />
-        </div>
+        {SHOW_PROFILE_PICTURE_CHECKBOX && (
+          <div className="profile-picture-checkbox">
+            <InputCheckbox
+              id={`profile-picture-${selectedIndex}`}
+              name="isProfilePicture"
+              label={content["profile-image-checkbox"]}
+              checked={isProfilePicture}
+              disabled={hasProfileImage}
+              onChange={(e) => setIsProfilePicture(e.target.checked)}
+            />
+          </div>
+        )}
         <div className="flex-row">
-          {images.length === 0 && (
+          {images.length === 0 && status === "Failed" && (
             <Button
-              type="submit"
-              disabled={status === "Loading" || !canCreate}
+              type="button"
+              onClick={() => saveImage("create")}
+              disabled={!canCreate}
               variant="outline"
               size="sm"
             >
@@ -160,15 +164,15 @@ export const SubmitImage = ({
             </Button>
           )}
         </div>
-      </form>
+      </div>
       <div>
         {status === "Failed" &&
-          `Bilden har inte laddats upp! ${errors.join(", ")}`}
-        {status === "Loading" && "Laddar bilder..."}
+          `The image could not be uploaded! ${errors.join(", ")}`}
+        {status === "Loading" && "Uploading images..."}
         {(status === "Created" || status === "Updated") && (
           <p>
-            {status === "Created" ? "Bilden har lagts till" : "Bilden har uppdaterats"}{" "}
-            för {plant.name}!
+            {status === "Created" ? "The image has been added" : "The image has been updated"}{" "}
+            for {plant.name}!
           </p>
         )}
       </div>
