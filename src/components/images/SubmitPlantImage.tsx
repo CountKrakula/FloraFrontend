@@ -120,13 +120,6 @@ export const SubmitImage = ({
             {selectedFileName || "No file selected"}
           </span>
         </div>
-        {uploadedImage.url && (
-          <img
-            src={uploadedImage.url}
-            alt="Preview"
-            className="h-44 w-full rounded-lg object-cover"
-          />
-        )}
         {SHOW_PROFILE_PICTURE_CHECKBOX && (
           <div className="profile-picture-checkbox">
             <InputCheckbox
