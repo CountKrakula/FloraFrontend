@@ -151,7 +151,8 @@ export const CareTasksCard = ({ plantId, tasks, onTasksChange }: Props) => {
                 onChange={(e) => setType(e.target.value as CareTaskType)}
                 className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm"
               >
-                {CARE_TASK_TYPES.map((t) => (
+                {/* Show only the types the plant doesn't have yet */}
+                {CARE_TASK_TYPES.filter((t) => !tasks.some((d) => d.type === t)).map((t) => (
                   <option key={t} value={t}>
                     {t}
                   </option>
