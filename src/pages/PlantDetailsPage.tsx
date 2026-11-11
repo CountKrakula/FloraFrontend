@@ -1,7 +1,8 @@
 // PlantDetailsPage.tsx
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import type { Log } from "@/components/care/CareLogCard";
+import type { CareLogDto } from "@/types/careLog";
+import { getCareLogs, createCareLog } from "@/service/careLogService";
 import { CareLogCard } from "@/components/care/CareLogCard";
 import type { Plant as PlantInfo } from "@/components/plants/PlantInfoDialog";
 import { PlantInfoCard } from "@/components/plants/PlantInfoCard";
@@ -62,11 +63,8 @@ export const PlantDetailsPage = () => {
   // Care tasks from the backend, shared by the watering section and the care schedule card
   const [careTasks, setCareTasks] = useState<CareTaskDto[]>([]);
 
-  // Care log (mock until CareLog is connected)
-  const [logs, setLogs] = useState<Log[]>([
-    { id: 1, date: "2026-10-22", notes: "Watered", plantId },
-    { id: 2, date: "2026-10-27", notes: "Fertilized", plantId },
-  ]);
+  // Care logs from the backend, shared by "Mark as watered" and the care log card
+  const [careLogs, setCareLogs] = useState<CareLogDto[]>([]);
 
   // Fetch the plant from the backend when the page loads
   useEffect(() => {
@@ -87,6 +85,13 @@ export const PlantDetailsPage = () => {
     getCareTasks(plantId)
       .then(setCareTasks)
       .catch(() => setError("Could not load care tasks."));
+  }, [plantId]);
+
+  // Fetch the care logs from the backend when the page loads
+  useEffect(() => {
+    getCareLogs(plantId, 1, 50)
+      .then((result) => setCareLogs(result.items))
+      .catch(() => setError("Could not load care logs."));
   }, [plantId]);
 
   // Save changes from the edit dialog to the backend
@@ -131,9 +136,12 @@ export const PlantDetailsPage = () => {
       );
       setError(null);
 
-      // Also add a "Watered" row to the care log (mock until CareLog is connected)
-      const todaysDate = new Date().toISOString().slice(0, 10);
-      setLogs([...logs, { id: logs.length + 1, date: todaysDate, notes: "Watered", plantId }]);
+      // Also save a "Watered" entry in the care log
+      const log = await createCareLog(plantId, {
+        date: new Date().toISOString(),
+        notes: "Watered",
+      });
+      setCareLogs((prev) => [log, ...prev]);
     } catch {
       setError("Could not mark the plant as watered. Please try again.");
     }
@@ -220,7 +228,7 @@ export const PlantDetailsPage = () => {
             {imagesError}
           </p>
         )}
-        
+
         {/* Health log card */}
         <HealthLogCard plantId={plantId} />
 
@@ -237,7 +245,7 @@ export const PlantDetailsPage = () => {
         )}
 
         {/* Care log card */}
-        <CareLogCard logs={logs} />
+        <CareLogCard plantId={plantId} logs={careLogs} onLogsChange={setCareLogs} />
 
         <Button variant="destructive" className="w-full gap-2" onClick={handleDelete}>
           <Trash2 className="h-4 w-4" />
