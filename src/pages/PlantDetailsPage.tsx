@@ -1,4 +1,3 @@
-// PlantDetailsPage.tsx
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { CareLogDto } from "@/types/careLog";
@@ -16,9 +15,10 @@ import { getCareTasks, completeCareTask } from "@/service/careTaskService";
 import type { CareTaskDto } from "@/types/careTask";
 import { parseUtcDate } from "@/lib/date";
 import { SubmitImage } from "@/components/images/SubmitPlantImage";
-import  {ImageInfoCard}  from "@/components/images/ImageInfoCard";
+import { ImageInfoCard } from "@/components/images/ImageInfoCard";
 import { getImageUrl, getImages } from "@/hooks/useImage";
 import type { ImageDTO } from "@/types/image";
+import { wasDoneToday } from "@/lib/careTaskRules";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=500&q=80";
@@ -127,7 +127,7 @@ export const PlantDetailsPage = () => {
   // Runs when "Mark as watered" is clicked: tells the backend the watering task is done.
   // The backend sets "last done" to now and calculates the next watering date.
   async function handleWatered() {
-    if (!wateringTask) return;
+    if (!wateringTask || wasDoneToday(wateringTask)) return;
 
     try {
       const updated = await completeCareTask(plantId, wateringTask.id);
@@ -235,7 +235,7 @@ export const PlantDetailsPage = () => {
         {/* Care schedule from the backend */}
         <CareTasksCard plantId={plantId} tasks={careTasks} onTasksChange={setCareTasks} />
 
-        <Button size="sm" variant="outline" onClick={handleWatered} disabled={!wateringTask}>
+        <Button size="sm" variant="outline" onClick={handleWatered} disabled={!wateringTask || wasDoneToday(wateringTask)}>
           <Droplet className="h-4 w-4" /> Mark as watered
         </Button>
         {!wateringTask && (

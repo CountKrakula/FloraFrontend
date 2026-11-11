@@ -12,8 +12,8 @@
             "description": "Bilderna ska vara skarpa. Det är lättare att få till om det är ljust där du tar bilden."
         }
     ],
-    "select-button": "Välj bild",
-    "profile-image-checkbox": "Använd som profilbild",
-    "upload-button": "Ladda upp bild",
-    "uploaded-images-title": "Uppladdade bilder"
+    "select-button": "Choose image",
+    "profile-image-checkbox": "Use as profile image",
+    "upload-button": "Upload image",
+    "uploaded-images-title": "Uploaded images"
 }
