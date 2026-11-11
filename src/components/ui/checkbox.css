@@ -27,13 +27,13 @@
 }
 
 .circle-checkbox:checked {
-  background-color: var(--color-mint);
-  border-color: var(--color-mint);
+  background-color: var(--green-main);
+  border-color: var(--green-main);
 }
 
 .circle-checkbox:checked::after {
   content: "✓";
-  color: var(--color-teal);
+  color: var(--green-deep);
   font-size: 0.875rem;
   font-weight: bold;
   position: absolute;
