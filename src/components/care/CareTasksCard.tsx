@@ -40,8 +40,16 @@ export const CareTasksCard = ({ plantId, tasks, onTasksChange }: Props) => {
   const [intervalDays, setIntervalDays] = useState(7);
 
   function openAdd() {
+    // Find the first type that no task has yet
+    const firstFreeType = CARE_TASK_TYPES.find(
+      (t) => !tasks.some((d) => d.type === t)
+    );
+
+    // All four types already exist, so there is nothing to add
+    if (!firstFreeType) return; 
+
     setEditing(null);
-    setType("Watering");
+    setType(firstFreeType); // start the form on a free type, not always "Watering"
     setIntervalDays(7);
     setOpen(true);
   }
