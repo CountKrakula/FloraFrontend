@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "@/context/auth-context";
+import { DeleteAccountDialog } from "../components/auth/DeleteAccountDialog";
 import {
   getProfile,
   updateAccountInfo,
@@ -24,7 +23,6 @@ import {
 import { Input } from "@/components/ui/input";
 
 export const ProfilePage = () => {
-  const { isAuthenticated, isCheckingAuthentication } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -34,31 +32,31 @@ export const ProfilePage = () => {
   const [profileError, setProfileError] = useState("");
   const [nameMessage, setNameMessage] = useState("");
   const [nameHasError, setNameHasError] = useState(false);
-  const [emailMessage, setEmailMessage] = useState("");
-  const [emailHasError, setEmailHasError] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState("");
   const [passwordHasError, setPasswordHasError] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      return;
-    }
-
+    let isCurrent = true;
     getProfile()
       .then((profile) => {
+        if (!isCurrent) return;
         setName(profile.name);
         setEmail(profile.email);
       })
-      .catch(() => setProfileError("We couldn't load your profile right now."))
-      .finally(() => setIsLoading(false));
-  }, [isAuthenticated]);
+      .catch(() => {
+        if (isCurrent) setProfileError("We couldn't load your profile right now.");
+      })
+      .finally(() => {
+        if (isCurrent) setIsLoading(false);
+      });
 
-  if (isCheckingAuthentication || (isAuthenticated && isLoading)) {
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
+
+  if (isLoading) {
     return <p className="py-12 text-center">Loading profile...</p>;
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
   }
 
   async function handleNameSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -78,20 +76,6 @@ export const ProfilePage = () => {
     } catch {
       setNameMessage("We couldn't update your name. Please try again.");
       setNameHasError(true);
-    }
-  }
-
-  async function handleEmailSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setEmailMessage("");
-    setEmailHasError(false);
-
-    try {
-      await updateAccountInfo({ newEmail: email });
-      setEmailMessage("Check your inbox to confirm your new email address.");
-    } catch {
-      setEmailMessage("We couldn't update your email. Please try again.");
-      setEmailHasError(true);
     }
   }
 
@@ -180,35 +164,14 @@ export const ProfilePage = () => {
         <Card>
           <CardHeader>
             <CardTitle>Email address</CardTitle>
-            <CardDescription>Change the email used to log in.</CardDescription>
+            <CardDescription>The email used to log in.</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleEmailSubmit}>
-              <FieldGroup>
-                <Field>
-                  <FieldLabel htmlFor="profile-email">Email</FieldLabel>
-                  <Input
-                    id="profile-email"
-                    type="email"
-                    value={email}
-                    onChange={(event) => {
-                      setEmail(event.target.value);
-                      setEmailMessage("");
-                      setEmailHasError(false);
-                    }}
-                    required
-                  />
-                </Field>
-                <Field>
-                  {emailHasError ? (
-                    <FieldError>{emailMessage}</FieldError>
-                  ) : (
-                    <FieldDescription>{emailMessage}</FieldDescription>
-                  )}
-                  <Button type="submit">Save email</Button>
-                </Field>
-              </FieldGroup>
-            </form>
+            <Field>
+              <FieldLabel htmlFor="profile-email">Email</FieldLabel>
+              <Input id="profile-email" type="email" value={email} readOnly />
+              <FieldDescription>Email changes are currently unavailable.</FieldDescription>
+            </Field>
           </CardContent>
         </Card>
       </div>
@@ -284,6 +247,7 @@ export const ProfilePage = () => {
           </form>
         </CardContent>
       </Card>
+      <DeleteAccountDialog />
     </section>
   );
 };

@@ -39,9 +39,21 @@ export const CareTasksCard = ({ plantId, tasks, onTasksChange }: Props) => {
   const [type, setType] = useState<CareTaskType>("Watering");
   const [intervalDays, setIntervalDays] = useState(7);
 
+  // True when the plant already has all four task types
+  const allTypesAdded = CARE_TASK_TYPES.every((t) => 
+    tasks.some((d) => d.type === t));
+
   function openAdd() {
+    // Find the first type that no task has yet
+    const firstFreeType = CARE_TASK_TYPES.find(
+      (t) => !tasks.some((d) => d.type === t)
+    );
+
+    // All four types already exist, so there is nothing to add
+    if (!firstFreeType) return; 
+
     setEditing(null);
-    setType("Watering");
+    setType(firstFreeType); // start the form on a free type, not always "Watering"
     setIntervalDays(7);
     setOpen(true);
   }
@@ -88,7 +100,7 @@ export const CareTasksCard = ({ plantId, tasks, onTasksChange }: Props) => {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Care schedule</CardTitle>
-        <Button variant="outline" size="sm" onClick={openAdd}>
+        <Button variant="outline" size="sm" onClick={openAdd} disabled={allTypesAdded}>
           Add task
         </Button>
       </CardHeader>
@@ -151,7 +163,9 @@ export const CareTasksCard = ({ plantId, tasks, onTasksChange }: Props) => {
                 onChange={(e) => setType(e.target.value as CareTaskType)}
                 className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm"
               >
-                {CARE_TASK_TYPES.map((t) => (
+                {/* Show only free types. When editing, the task's own type stays in the list. */}
+                {CARE_TASK_TYPES.filter((t) => !tasks.some((d) => d.type === t && d.id !== editing?.id))
+                .map((t) => (
                   <option key={t} value={t}>
                     {t}
                   </option>

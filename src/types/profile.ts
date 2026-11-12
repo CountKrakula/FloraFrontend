@@ -9,7 +9,6 @@ export type UpdateProfileDto = {
 };
 
 export type UpdateAccountInfoDto = {
-  newEmail?: string;
   oldPassword?: string;
   newPassword?: string;
 };
