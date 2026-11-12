@@ -122,7 +122,7 @@ export const AuthenticatedDashboard = () => {
             ) : activePanel === "plants" ? (
               plants.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  You have not added any plants yet.
+                  You haven’t added any plants yet.
                 </p>
               ) : (
                 <ul className="space-y-3">
