@@ -148,7 +148,7 @@ export const AuthenticatedDashboard = () => {
                   {tasksNeedingAttention.map((task) => (
                     <li
                       key={`${task.plantId}-${task.id}`}
-                      className="flex items-center justify-between gap-4 rounded-xl border border-amber-200 border-l-4 border-l-amber-500 bg-amber-50 p-4"
+                      className="flex items-center justify-between gap-4 rounded-xl border border-warning-border border-l-4 border-l-warning bg-warning-background p-4"
                     >
                       <div>
                         <p className="font-medium text-foreground">
@@ -241,7 +241,7 @@ const DashboardSummaryCard = ({
           </div>
         </div>
         {attentionCount > 0 && (
-          <div className="mt-4 flex items-center gap-2 border-t pt-3 text-sm text-amber-700 dark:text-amber-400">
+          <div className="mt-4 flex items-center gap-2 border-t pt-3 text-sm text-warning">
             <BellRing className="size-4" aria-hidden="true" />
             <span>
               {attentionCount}{" "}
