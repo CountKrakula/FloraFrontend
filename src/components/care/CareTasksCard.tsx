@@ -161,6 +161,8 @@ export const CareTasksCard = ({ plantId, tasks, onTasksChange }: Props) => {
                 id="care-task-type"
                 value={type}
                 onChange={(e) => setType(e.target.value as CareTaskType)}
+                // Type can't be changed when editing, only the interval can be changed. To change type, delete and add. 
+                disabled={editing !== null}
                 className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm"
               >
                 {/* Show only free types. When editing, the task's own type stays in the list. */}
