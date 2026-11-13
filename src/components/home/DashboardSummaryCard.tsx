@@ -1,5 +1,7 @@
-import { BellRing } from "lucide-react";
+import { BellRing, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
+import { Button } from "../ui/button";
+import { Link } from "react-router-dom";
 
 type DashboardSummaryCardProps = {
   active: boolean;
@@ -9,6 +11,7 @@ type DashboardSummaryCardProps = {
   attentionCount?: number;
   icon: React.ReactNode;
   onClick: () => void;
+  navigateTo?: string;
 };
 
 export const DashboardSummaryCard = ({
@@ -19,6 +22,7 @@ export const DashboardSummaryCard = ({
   attentionCount = 0,
   icon,
   onClick,
+  navigateTo,
 }: DashboardSummaryCardProps) => (
   <Card
     className={`bg-card shadow-sm transition-shadow hover:shadow-md ${active ? "border-primary" : ""}`}
@@ -36,9 +40,21 @@ export const DashboardSummaryCard = ({
           {icon}
           <div>
             <p className="text-2xl font-bold text-foreground">{value}</p>
-            <p className="text-sm text-muted-foreground">{label}</p>
+            <p className="text-sm text-muted-foreground">
+              {label} · View details
+            </p>
           </div>
         </div>
+        {navigateTo && (
+          <Button
+            variant="link"
+            nativeButton={false}
+            className="w-fit px-3 py-1 text-sm"
+            render={<Link to={navigateTo} />}
+          >
+            Go to {label} <ArrowRight className="size-4" aria-hidden="true" />
+          </Button>
+        )}
         {attentionCount > 0 && (
           <div className="mt-4 flex items-center gap-2 border-t pt-3 text-sm text-warning">
             <BellRing className="size-4" aria-hidden="true" />

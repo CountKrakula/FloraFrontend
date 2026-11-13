@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { BellRing, Droplets, Leaf, NotebookPen } from "lucide-react";
 import {
   Card,
@@ -29,7 +30,6 @@ export const AuthenticatedDashboard = () => {
   const tasksUpcoming = userCareTasks.filter((task) =>
     isCareTaskUpcoming(task),
   );
-  console.log("tasksUpcoming", tasksUpcoming);
   const recentCareLogs = [...careLogs]
     .sort(
       (first, second) =>
@@ -66,15 +66,16 @@ export const AuthenticatedDashboard = () => {
         <DashboardSummaryCard
           active={activePanel === "plants"}
           expanded={activePanel === "plants"}
-          label="My plants · View details"
+          label="My plants"
           value={isLoading ? "—" : plants.length}
           icon={<Leaf className="size-8 text-primary" aria-hidden="true" />}
           onClick={() => togglePanel("plants")}
+          navigateTo="/my-plants"
         />
         <DashboardSummaryCard
           active={activePanel === "tasks"}
           expanded={activePanel === "tasks"}
-          label="Care tasks · View details"
+          label="Care tasks"
           value={tasksLoading || tasksError ? "—" : userCareTasks.length}
           attentionCount={
             tasksLoading || tasksError ? 0 : tasksNeedingAttention.length
@@ -85,7 +86,7 @@ export const AuthenticatedDashboard = () => {
         <DashboardSummaryCard
           active={activePanel === "logs"}
           expanded={activePanel === "logs"}
-          label="Care log · View details"
+          label="Care los"
           value={isLoading ? "—" : careLogs.length}
           icon={
             <NotebookPen className="size-8 text-primary" aria-hidden="true" />
@@ -121,13 +122,18 @@ export const AuthenticatedDashboard = () => {
               ) : (
                 <ul className="space-y-3">
                   {plants.map((plant) => (
-                    <li key={plant.id} className="rounded-xl bg-secondary p-4">
-                      <p className="font-medium text-foreground">
-                        {plant.name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {plant.location}
-                      </p>
+                    <li key={plant.id}>
+                      <Link
+                        to={`/plant-details/${plant.id}`}
+                        className="block rounded-xl bg-secondary p-4 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <p className="font-medium text-foreground">
+                          {plant.name}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {plant.location}
+                        </p>
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -143,23 +149,27 @@ export const AuthenticatedDashboard = () => {
                     {tasksNeedingAttention.map((task) => (
                       <li
                         key={`${task.plantId}-${task.id}`}
-                        className="flex items-center justify-between gap-4 rounded-xl border border-warning-border border-l-4 border-l-warning bg-warning-background p-4"
                       >
-                        <div>
-                          <p className="font-medium text-foreground">
-                            {task.plantName}
-                          </p>
-                          <div className="flex gap-2 items-center">
-                            <BellRing className="size-4" aria-hidden="true" />
-
-                            <p className="text-sm text-muted-foreground">
-                              {task.type}
+                        <Link
+                          to={`/plant-details/${task.plantId}`}
+                          className="flex items-center justify-between gap-4 rounded-xl border border-warning-border border-l-4 border-l-warning bg-warning-background p-4 transition-colors hover:border-warning focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          <div>
+                            <p className="font-medium text-foreground">
+                              {task.plantName}
                             </p>
+                            <div className="flex gap-2 items-center">
+                              <BellRing className="size-4" aria-hidden="true" />
+
+                              <p className="text-sm text-muted-foreground">
+                                {task.type}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                        <time className="shrink-0 text-sm text-muted-foreground">
-                          Due {formatDate(task.nextDueAt)}
-                        </time>
+                          <time className="shrink-0 text-sm text-muted-foreground">
+                            Due {formatDate(task.nextDueAt)}
+                          </time>
+                        </Link>
                       </li>
                     ))}
                   </ul>
@@ -181,19 +191,23 @@ export const AuthenticatedDashboard = () => {
                     {tasksUpcoming.map((task) => (
                       <li
                         key={`${task.plantId}-${task.id}`}
-                        className="flex items-center justify-between gap-4 rounded-xl bg-secondary p-4"
                       >
-                        <div>
-                          <p className="font-medium text-foreground">
-                            {task.plantName}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {task.type} · Every {task.intervalDays} days
-                          </p>
-                        </div>
-                        <time className="shrink-0 text-sm text-muted-foreground">
-                          Due {formatDate(task.nextDueAt)}
-                        </time>
+                        <Link
+                          to={`/plant-details/${task.plantId}`}
+                          className="flex items-center justify-between gap-4 rounded-xl bg-secondary p-4 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          <div>
+                            <p className="font-medium text-foreground">
+                              {task.plantName}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {task.type} · Every {task.intervalDays} days
+                            </p>
+                          </div>
+                          <time className="shrink-0 text-sm text-muted-foreground">
+                            Due {formatDate(task.nextDueAt)}
+                          </time>
+                        </Link>
                       </li>
                     ))}
                   </ul>
@@ -208,19 +222,23 @@ export const AuthenticatedDashboard = () => {
                 {recentCareLogs.map((careLog) => (
                   <li
                     key={`${careLog.plantId}-${careLog.id}`}
-                    className="rounded-xl bg-secondary p-4"
                   >
-                    <div className="flex items-center justify-between gap-4">
-                      <p className="font-medium text-foreground">
-                        {careLog.plantName}
+                    <Link
+                      to={`/plant-details/${careLog.plantId}`}
+                      className="block rounded-xl bg-secondary p-4 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <div className="flex items-center justify-between gap-4">
+                        <p className="font-medium text-foreground">
+                          {careLog.plantName}
+                        </p>
+                        <time className="shrink-0 text-sm text-muted-foreground">
+                          {formatDate(careLog.date)}
+                        </time>
+                      </div>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {careLog.notes || "Care recorded"}
                       </p>
-                      <time className="shrink-0 text-sm text-muted-foreground">
-                        {formatDate(careLog.date)}
-                      </time>
-                    </div>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {careLog.notes || "Care recorded"}
-                    </p>
+                    </Link>
                   </li>
                 ))}
               </ul>
