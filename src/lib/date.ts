@@ -2,3 +2,8 @@
 // Without the "Z" the browser would read them as local time, so we add it.
 export const parseUtcDate = (value: string) =>
   new Date(/Z$|[+-]\d{2}:\d{2}$/.test(value) ? value : `${value}Z`);
+
+export const formatDate = (date: string) =>
+  new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(
+    new Date(date),
+  );
