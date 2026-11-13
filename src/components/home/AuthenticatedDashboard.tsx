@@ -10,7 +10,7 @@ import {
 import { useDashboard } from "@/hooks/useDashboard";
 import type { DashboardPanel } from "@/types/dashboard";
 import { useUserCareTasksContext } from "@/hooks/useUserCareTasksContext";
-import { needsCareTaskAttention } from "@/lib/careTasks";
+import { isCareTaskUpcoming, needsCareTaskAttention } from "@/lib/careTasks";
 import { DashboardSummaryCard } from "./DashboardSummaryCard";
 import { formatDate } from "@/lib/date";
 
@@ -26,9 +26,10 @@ export const AuthenticatedDashboard = () => {
   const tasksNeedingAttention = userCareTasks.filter((task) =>
     needsCareTaskAttention(task),
   );
-  const nextWeek = new Date();
-  nextWeek.setDate(nextWeek.getDate() + 7);
-
+  const tasksUpcoming = userCareTasks.filter((task) =>
+    isCareTaskUpcoming(task),
+  );
+  console.log("tasksUpcoming", tasksUpcoming);
   const recentCareLogs = [...careLogs]
     .sort(
       (first, second) =>
@@ -137,30 +138,66 @@ export const AuthenticatedDashboard = () => {
                   No overdue or upcoming care tasks.
                 </p>
               ) : (
-                <ul className="space-y-3">
-                  {tasksNeedingAttention.map((task) => (
-                    <li
-                      key={`${task.plantId}-${task.id}`}
-                      className="flex items-center justify-between gap-4 rounded-xl border border-warning-border border-l-4 border-l-warning bg-warning-background p-4"
-                    >
-                      <div>
-                        <p className="font-medium text-foreground">
-                          {task.plantName}
-                        </p>
-                        <div className="flex gap-2 items-center">
-                          <BellRing className="size-4" aria-hidden="true" />
+                <div>
+                  <ul className="space-y-3">
+                    {tasksNeedingAttention.map((task) => (
+                      <li
+                        key={`${task.plantId}-${task.id}`}
+                        className="flex items-center justify-between gap-4 rounded-xl border border-warning-border border-l-4 border-l-warning bg-warning-background p-4"
+                      >
+                        <div>
+                          <p className="font-medium text-foreground">
+                            {task.plantName}
+                          </p>
+                          <div className="flex gap-2 items-center">
+                            <BellRing className="size-4" aria-hidden="true" />
 
+                            <p className="text-sm text-muted-foreground">
+                              {task.type}
+                            </p>
+                          </div>
+                        </div>
+                        <time className="shrink-0 text-sm text-muted-foreground">
+                          Due {formatDate(task.nextDueAt)}
+                        </time>
+                      </li>
+                    ))}
+                  </ul>
+                  {tasksUpcoming.length > 0 ? (
+                    <div className="mt-6">
+                      <p className="mb-2 text-sm font-medium text-foreground">
+                        Upcoming care tasks
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        These tasks are due in the next three days.
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="mt-6 text-sm text-muted-foreground">
+                      No care tasks due in the next three days.
+                    </p>
+                  )}
+                  <ul className="space-y-3">
+                    {tasksUpcoming.map((task) => (
+                      <li
+                        key={`${task.plantId}-${task.id}`}
+                        className="flex items-center justify-between gap-4 rounded-xl bg-secondary p-4"
+                      >
+                        <div>
+                          <p className="font-medium text-foreground">
+                            {task.plantName}
+                          </p>
                           <p className="text-sm text-muted-foreground">
-                            {task.type}
+                            {task.type} · Every {task.intervalDays} days
                           </p>
                         </div>
-                      </div>
-                      <time className="shrink-0 text-sm text-muted-foreground">
-                        Due {formatDate(task.nextDueAt)}
-                      </time>
-                    </li>
-                  ))}
-                </ul>
+                        <time className="shrink-0 text-sm text-muted-foreground">
+                          Due {formatDate(task.nextDueAt)}
+                        </time>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )
             ) : recentCareLogs.length === 0 ? (
               <p className="text-sm text-muted-foreground">
