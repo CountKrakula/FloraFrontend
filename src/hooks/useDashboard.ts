@@ -73,7 +73,7 @@ export const useDashboard = () => {
       } catch {
         if (isCurrent) {
           setError(
-            "We could not load your dashboard. Check that the backend and database are running, then try again.",
+            "We couldn’t load your dashboard right now. Please try again later.",
           );
         }
       } finally {
