@@ -26,3 +26,7 @@ export async function checkAuthentication() {
     return false;
   }
 }
+
+export async function deleteAccount(password: string): Promise<void> {
+  await api.delete("api/user/delete-account", { data: { password } });
+}

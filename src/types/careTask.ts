@@ -16,6 +16,7 @@ export type CareTaskDto = {
   lastDoneAt?: string | null;
   nextDueAt: string;
   plantId: number;
+  plantName: string;
 };
 
 // What the user fills in when creating or editing a care task
