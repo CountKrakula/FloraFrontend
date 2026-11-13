@@ -172,7 +172,7 @@ export const PlantDetailsPage = () => {
 
   const selectedImage = images.find((image) => image.imageId === selectedImageId);
 
-    return (
+  return (
     <div className="container mx-auto max-w-6xl px-4 py-8 md:py-12">
       {/* Name and location at the top, full width */}
       <div className="mb-6">
@@ -191,7 +191,7 @@ export const PlantDetailsPage = () => {
 
       {/* One column on mobile, two columns on desktop */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Left column: images, watering and plant information */}
+        {/* Left column: images, watering status and plant information */}
         <div className="space-y-4">
           <Card>
             <CardHeader>
@@ -224,9 +224,9 @@ export const PlantDetailsPage = () => {
             </p>
           )}
 
-          {/* Watering status and button */}
+          {/* Watering status */}
           <Card>
-            <CardContent className="space-y-3">
+            <CardContent>
               <div className="flex items-center gap-2 text-sm">
                 <Droplet className="h-4 w-4" />
                 <span>
@@ -234,20 +234,6 @@ export const PlantDetailsPage = () => {
                 </span>
                 <span className={badgeClass}>{status}</span>
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                className="w-full sm:w-auto"
-                onClick={handleWatered}
-                disabled={!wateringTask}
-              >
-                <Droplet className="h-4 w-4" /> Mark as watered
-              </Button>
-              {!wateringTask && (
-                <p className="text-xs text-muted-foreground">
-                  Add a Watering task in the care schedule to track watering.
-                </p>
-              )}
             </CardContent>
           </Card>
 
@@ -257,6 +243,22 @@ export const PlantDetailsPage = () => {
         {/* Right column: care schedule, care log and health log */}
         <div className="space-y-4">
           <CareTasksCard plantId={plantId} tasks={careTasks} onTasksChange={setCareTasks} />
+
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={handleWatered}
+            disabled={!wateringTask || wasDoneToday(wateringTask)}
+          >
+            <Droplet className="h-4 w-4" /> Mark as watered
+          </Button>
+          {!wateringTask && (
+            <p className="text-xs text-muted-foreground">
+              Add a Watering task in the care schedule to track watering.
+            </p>
+          )}
+
           <CareLogCard plantId={plantId} logs={careLogs} onLogsChange={setCareLogs} />
           <HealthLogCard plantId={plantId} />
         </div>
