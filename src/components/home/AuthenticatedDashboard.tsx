@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { BellRing, Droplets, Leaf, NotebookPen } from "lucide-react";
+import { BellRing, Droplets, Leaf, NotebookPen, Plus } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -14,10 +14,13 @@ import { useUserCareTasksContext } from "@/hooks/useUserCareTasksContext";
 import { isCareTaskUpcoming, needsCareTaskAttention } from "@/lib/careTasks";
 import { DashboardSummaryCard } from "./DashboardSummaryCard";
 import { formatDate } from "@/lib/date";
+import { Button } from "../ui/button";
+import { AddPlantDialog } from "../plants/AddPlantDialog";
 
 export const AuthenticatedDashboard = () => {
-  const { plants, careLogs, isLoading, error } = useDashboard();
+  const { plants, careLogs, isLoading, error, addPlant } = useDashboard();
   const [activePanel, setActivePanel] = useState<DashboardPanel>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const {
     userCareTasks,
     loading: tasksLoading,
@@ -98,11 +101,19 @@ export const AuthenticatedDashboard = () => {
       {activePanel && (
         <Card id="dashboard-details" className="bg-card shadow-sm">
           <CardHeader>
-            <CardTitle>
-              {activePanel === "plants" && "My plants"}
-              {activePanel === "tasks" && "Care tasks needing attention"}
-              {activePanel === "logs" && "Recent care log entries"}
-            </CardTitle>
+            <div className="flex items-center justify-between gap-4">
+              <CardTitle>
+                {activePanel === "plants" && "My plants"}
+                {activePanel === "tasks" && "Care tasks needing attention"}
+                {activePanel === "logs" && "Recent care log entries"}
+              </CardTitle>
+              {activePanel === "plants" && (
+                <Button onClick={() => setIsAddModalOpen(true)}>
+                  <Plus />
+                  Add plant
+                </Button>
+              )}
+            </div>
             <CardDescription>
               {activePanel === "plants" && "Your plants saved to your account."}
               {activePanel === "logs" &&
@@ -147,9 +158,7 @@ export const AuthenticatedDashboard = () => {
                 <div>
                   <ul className="space-y-3">
                     {tasksNeedingAttention.map((task) => (
-                      <li
-                        key={`${task.plantId}-${task.id}`}
-                      >
+                      <li key={`${task.plantId}-${task.id}`}>
                         <Link
                           to={`/plant-details/${task.plantId}`}
                           className="flex items-center justify-between gap-4 rounded-xl border border-warning-border border-l-4 border-l-warning bg-warning-background p-4 transition-colors hover:border-warning focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -189,9 +198,7 @@ export const AuthenticatedDashboard = () => {
                   )}
                   <ul className="space-y-3">
                     {tasksUpcoming.map((task) => (
-                      <li
-                        key={`${task.plantId}-${task.id}`}
-                      >
+                      <li key={`${task.plantId}-${task.id}`}>
                         <Link
                           to={`/plant-details/${task.plantId}`}
                           className="flex items-center justify-between gap-4 rounded-xl bg-secondary p-4 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -220,9 +227,7 @@ export const AuthenticatedDashboard = () => {
             ) : (
               <ul className="space-y-3">
                 {recentCareLogs.map((careLog) => (
-                  <li
-                    key={`${careLog.plantId}-${careLog.id}`}
-                  >
+                  <li key={`${careLog.plantId}-${careLog.id}`}>
                     <Link
                       to={`/plant-details/${careLog.plantId}`}
                       className="block rounded-xl bg-secondary p-4 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -246,6 +251,11 @@ export const AuthenticatedDashboard = () => {
           </CardContent>
         </Card>
       )}
+      <AddPlantDialog
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAddPlant={(plant) => addPlant(plant)}
+      ></AddPlantDialog>
     </section>
   );
 };

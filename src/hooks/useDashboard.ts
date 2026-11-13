@@ -38,7 +38,6 @@ export const useDashboard = () => {
 
   useEffect(() => {
     let isCurrent = true;
-
     const loadDashboard = async () => {
       setIsLoading(true);
       setError(null);
@@ -88,5 +87,8 @@ export const useDashboard = () => {
     };
   }, []);
 
-  return { plants, careTasks, careLogs, isLoading, error };
+  const addPlant = (plant: PlantDto) => {
+    setPlants((prev) => [plant, ...prev]);
+  };
+  return { plants, careTasks, careLogs, isLoading, error, addPlant };
 };
