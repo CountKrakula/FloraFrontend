@@ -8,6 +8,7 @@ import { PlantLibraryPage } from "./pages/PlantLibraryPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { ProfilePage } from "./pages/ProfilePage";
 
 
 export const Router = createBrowserRouter([
@@ -26,6 +27,7 @@ export const Router = createBrowserRouter([
           { path: "/my-plants", element: <MyPlantsPage /> },
           { path: "/plant-details/:id", element: <PlantDetailsPage /> },
           { path: "/plant-library", element: <PlantLibraryPage /> },
+          { path: "/profile", element: <ProfilePage /> },
         ]
       }
     ],
