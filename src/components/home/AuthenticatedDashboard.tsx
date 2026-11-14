@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { BellRing, Droplets, Leaf, NotebookPen } from "lucide-react";
+import { Link } from "react-router-dom";
+import { BellRing, Droplets, Leaf, NotebookPen, Plus } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -10,11 +11,16 @@ import {
 import { useDashboard } from "@/hooks/useDashboard";
 import type { DashboardPanel } from "@/types/dashboard";
 import { useUserCareTasksContext } from "@/hooks/useUserCareTasksContext";
-import { needsCareTaskAttention } from "@/lib/careTasks";
+import { isCareTaskUpcoming, needsCareTaskAttention } from "@/lib/careTasks";
+import { DashboardSummaryCard } from "./DashboardSummaryCard";
+import { formatDate } from "@/lib/date";
+import { Button } from "../ui/button";
+import { AddPlantDialog } from "../plants/AddPlantDialog";
 
 export const AuthenticatedDashboard = () => {
-  const { plants, careLogs, isLoading, error } = useDashboard();
+  const { plants, careLogs, isLoading, error, addPlant } = useDashboard();
   const [activePanel, setActivePanel] = useState<DashboardPanel>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const {
     userCareTasks,
     loading: tasksLoading,
@@ -24,18 +30,9 @@ export const AuthenticatedDashboard = () => {
   const tasksNeedingAttention = userCareTasks.filter((task) =>
     needsCareTaskAttention(task),
   );
-  console.log({ userCareTasks, tasksNeedingAttention, tasksError });
-  const nextWeek = new Date();
-  nextWeek.setDate(nextWeek.getDate() + 7);
-
-  // const upcomingTasks = careTasks
-  //   .filter((task) => new Date(task.nextDueAt) <= nextWeek)
-  //   .sort(
-  //     (first, second) =>
-  //       new Date(first.nextDueAt).getTime() -
-  //       new Date(second.nextDueAt).getTime(),
-  //   );
-
+  const tasksUpcoming = userCareTasks.filter((task) =>
+    isCareTaskUpcoming(task),
+  );
   const recentCareLogs = [...careLogs]
     .sort(
       (first, second) =>
@@ -72,15 +69,16 @@ export const AuthenticatedDashboard = () => {
         <DashboardSummaryCard
           active={activePanel === "plants"}
           expanded={activePanel === "plants"}
-          label="My plants · View details"
+          label="My plants"
           value={isLoading ? "—" : plants.length}
           icon={<Leaf className="size-8 text-primary" aria-hidden="true" />}
           onClick={() => togglePanel("plants")}
+          navigateTo="/my-plants"
         />
         <DashboardSummaryCard
           active={activePanel === "tasks"}
           expanded={activePanel === "tasks"}
-          label="Care tasks · View details"
+          label="Care tasks"
           value={tasksLoading || tasksError ? "—" : userCareTasks.length}
           attentionCount={
             tasksLoading || tasksError ? 0 : tasksNeedingAttention.length
@@ -91,7 +89,7 @@ export const AuthenticatedDashboard = () => {
         <DashboardSummaryCard
           active={activePanel === "logs"}
           expanded={activePanel === "logs"}
-          label="Care log · View details"
+          label="Care los"
           value={isLoading ? "—" : careLogs.length}
           icon={
             <NotebookPen className="size-8 text-primary" aria-hidden="true" />
@@ -103,11 +101,19 @@ export const AuthenticatedDashboard = () => {
       {activePanel && (
         <Card id="dashboard-details" className="bg-card shadow-sm">
           <CardHeader>
-            <CardTitle>
-              {activePanel === "plants" && "My plants"}
-              {activePanel === "tasks" && "Care tasks needing attention"}
-              {activePanel === "logs" && "Recent care log entries"}
-            </CardTitle>
+            <div className="flex items-center justify-between gap-4">
+              <CardTitle>
+                {activePanel === "plants" && "My plants"}
+                {activePanel === "tasks" && "Care tasks needing attention"}
+                {activePanel === "logs" && "Recent care log entries"}
+              </CardTitle>
+              {activePanel === "plants" && (
+                <Button onClick={() => setIsAddModalOpen(true)}>
+                  <Plus />
+                  Add plant
+                </Button>
+              )}
+            </div>
             <CardDescription>
               {activePanel === "plants" && "Your plants saved to your account."}
               {activePanel === "logs" &&
@@ -127,13 +133,18 @@ export const AuthenticatedDashboard = () => {
               ) : (
                 <ul className="space-y-3">
                   {plants.map((plant) => (
-                    <li key={plant.id} className="rounded-xl bg-secondary p-4">
-                      <p className="font-medium text-foreground">
-                        {plant.name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {plant.location}
-                      </p>
+                    <li key={plant.id}>
+                      <Link
+                        to={`/plant-details/${plant.id}`}
+                        className="block rounded-xl bg-secondary p-4 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <p className="font-medium text-foreground">
+                          {plant.name}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {plant.location}
+                        </p>
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -144,30 +155,70 @@ export const AuthenticatedDashboard = () => {
                   No overdue or upcoming care tasks.
                 </p>
               ) : (
-                <ul className="space-y-3">
-                  {tasksNeedingAttention.map((task) => (
-                    <li
-                      key={`${task.plantId}-${task.id}`}
-                      className="flex items-center justify-between gap-4 rounded-xl border border-warning-border border-l-4 border-l-warning bg-warning-background p-4"
-                    >
-                      <div>
-                        <p className="font-medium text-foreground">
-                          {task.plantName}
-                        </p>
-                        <div className="flex gap-2 items-center">
-                          <BellRing className="size-4" aria-hidden="true" />
+                <div>
+                  <ul className="space-y-3">
+                    {tasksNeedingAttention.map((task) => (
+                      <li key={`${task.plantId}-${task.id}`}>
+                        <Link
+                          to={`/plant-details/${task.plantId}`}
+                          className="flex items-center justify-between gap-4 rounded-xl border border-warning-border border-l-4 border-l-warning bg-warning-background p-4 transition-colors hover:border-warning focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          <div>
+                            <p className="font-medium text-foreground">
+                              {task.plantName}
+                            </p>
+                            <div className="flex gap-2 items-center">
+                              <BellRing className="size-4" aria-hidden="true" />
 
-                          <p className="text-sm text-muted-foreground">
-                            {task.type}
-                          </p>
-                        </div>
-                      </div>
-                      <time className="shrink-0 text-sm text-muted-foreground">
-                        Due {formatDate(task.nextDueAt)}
-                      </time>
-                    </li>
-                  ))}
-                </ul>
+                              <p className="text-sm text-muted-foreground">
+                                {task.type}
+                              </p>
+                            </div>
+                          </div>
+                          <time className="shrink-0 text-sm text-muted-foreground">
+                            Due {formatDate(task.nextDueAt)}
+                          </time>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                  {tasksUpcoming.length > 0 ? (
+                    <div className="mt-6">
+                      <p className="mb-2 text-sm font-medium text-foreground">
+                        Upcoming care tasks
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        These tasks are due in the next three days.
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="mt-6 text-sm text-muted-foreground">
+                      No care tasks due in the next three days.
+                    </p>
+                  )}
+                  <ul className="space-y-3">
+                    {tasksUpcoming.map((task) => (
+                      <li key={`${task.plantId}-${task.id}`}>
+                        <Link
+                          to={`/plant-details/${task.plantId}`}
+                          className="flex items-center justify-between gap-4 rounded-xl bg-secondary p-4 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          <div>
+                            <p className="font-medium text-foreground">
+                              {task.plantName}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {task.type} · Every {task.intervalDays} days
+                            </p>
+                          </div>
+                          <time className="shrink-0 text-sm text-muted-foreground">
+                            Due {formatDate(task.nextDueAt)}
+                          </time>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )
             ) : recentCareLogs.length === 0 ? (
               <p className="text-sm text-muted-foreground">
@@ -176,21 +227,23 @@ export const AuthenticatedDashboard = () => {
             ) : (
               <ul className="space-y-3">
                 {recentCareLogs.map((careLog) => (
-                  <li
-                    key={`${careLog.plantId}-${careLog.id}`}
-                    className="rounded-xl bg-secondary p-4"
-                  >
-                    <div className="flex items-center justify-between gap-4">
-                      <p className="font-medium text-foreground">
-                        {careLog.plantName}
+                  <li key={`${careLog.plantId}-${careLog.id}`}>
+                    <Link
+                      to={`/plant-details/${careLog.plantId}`}
+                      className="block rounded-xl bg-secondary p-4 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <div className="flex items-center justify-between gap-4">
+                        <p className="font-medium text-foreground">
+                          {careLog.plantName}
+                        </p>
+                        <time className="shrink-0 text-sm text-muted-foreground">
+                          {formatDate(careLog.date)}
+                        </time>
+                      </div>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {careLog.notes || "Care recorded"}
                       </p>
-                      <time className="shrink-0 text-sm text-muted-foreground">
-                        {formatDate(careLog.date)}
-                      </time>
-                    </div>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {careLog.notes || "Care recorded"}
-                    </p>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -198,65 +251,11 @@ export const AuthenticatedDashboard = () => {
           </CardContent>
         </Card>
       )}
+      <AddPlantDialog
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAddPlant={(plant) => addPlant(plant)}
+      ></AddPlantDialog>
     </section>
   );
 };
-
-type DashboardSummaryCardProps = {
-  active: boolean;
-  expanded: boolean;
-  label: string;
-  value: number | string;
-  attentionCount?: number;
-  icon: React.ReactNode;
-  onClick: () => void;
-};
-
-const DashboardSummaryCard = ({
-  active,
-  expanded,
-  label,
-  value,
-  attentionCount = 0,
-  icon,
-  onClick,
-}: DashboardSummaryCardProps) => (
-  <Card
-    className={`bg-card shadow-sm transition-shadow hover:shadow-md ${active ? "border-primary" : ""}`}
-  >
-    <button
-      type="button"
-      aria-expanded={expanded}
-      aria-controls="dashboard-details"
-      onClick={onClick}
-      className="w-full rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-    >
-      <CardContent className="flex flex-col gap-3 p-5">
-        <div className="flex items-center gap-4">
-          {" "}
-          {icon}
-          <div>
-            <p className="text-2xl font-bold text-foreground">{value}</p>
-            <p className="text-sm text-muted-foreground">{label}</p>
-          </div>
-        </div>
-        {attentionCount > 0 && (
-          <div className="mt-4 flex items-center gap-2 border-t pt-3 text-sm text-warning">
-            <BellRing className="size-4" aria-hidden="true" />
-            <span>
-              {attentionCount}{" "}
-              {attentionCount === 1
-                ? "task needs attention"
-                : "tasks need attention"}
-            </span>{" "}
-          </div>
-        )}
-      </CardContent>
-    </button>
-  </Card>
-);
-
-const formatDate = (date: string) =>
-  new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(
-    new Date(date),
-  );
