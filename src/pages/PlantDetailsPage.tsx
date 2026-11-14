@@ -173,85 +173,105 @@ export const PlantDetailsPage = () => {
   const selectedImage = images.find((image) => image.imageId === selectedImageId);
 
   return (
-    <div className="flex items-center justify-center px-4 py-8 md:py-16">
-      <div className="w-full max-w-sm md:max-w-md space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Plant images</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <img
-              src={selectedImage ? getImageUrl(selectedImage.url) : DEFAULT_IMAGE}
-              alt={info.name}
-              className="h-44 w-full rounded-lg object-cover"
-            />
-            <ImageInfoCard
-              images={images}
-              selectedImageId={selectedImageId}
-              onImageSelect={(image) => setSelectedImageId(image.imageId)}
-            />
-            <SubmitImage
-              plant={{ PlantId: plantId, name: info.name }}
-              images={images}
-              selectedIndex={images.findIndex((image) => image.imageId === selectedImageId)}
-              canCreate={!imagesLoading && !imagesError}
-              onSaved={loadPlantImages}
-            />
-          </CardContent>
-        </Card>
-        <div>
-          <h1 className="text-xl font-medium">{info.name}</h1>
-          <p className="text-sm text-muted-foreground">
-            {info.location}
-            {info.notes && ` · ${info.notes}`}
-          </p>
-        </div>
-
-        {error && (
-          <p className="text-sm text-destructive" role="alert">
-            {error}
-          </p>
-        )}
-
-        <div className="flex items-center gap-2 text-sm">
-          <Droplet className="h-4 w-4" />
-          <span>
-            Last watered: {lastWatered ? lastWatered.toLocaleDateString() : "Never"}
-          </span>
-          <span className={badgeClass}>{status}</span>
-        </div>
-
-        <PlantInfoCard plant={info} onSave={handleSaveInfo} />
-
-        {imagesError && (
-          <p className="text-sm text-destructive" role="alert">
-            {imagesError}
-          </p>
-        )}
-
-        {/* Health log card */}
-        <HealthLogCard plantId={plantId} />
-
-        {/* Care schedule from the backend */}
-        <CareTasksCard plantId={plantId} tasks={careTasks} onTasksChange={setCareTasks} />
-
-        <Button size="sm" variant="outline" onClick={handleWatered} disabled={!wateringTask || wasDoneToday(wateringTask)}>
-          <Droplet className="h-4 w-4" /> Mark as watered
-        </Button>
-        {!wateringTask && (
-          <p className="text-xs text-muted-foreground">
-            Add a Watering task in the care schedule to track watering.
-          </p>
-        )}
-
-        {/* Care log card */}
-        <CareLogCard plantId={plantId} logs={careLogs} onLogsChange={setCareLogs} />
-
-        <Button variant="destructive" className="w-full gap-2" onClick={handleDelete}>
-          <Trash2 className="h-4 w-4" />
-          Delete plant
-        </Button>
+    <div className="container mx-auto max-w-6xl px-4 py-8 md:py-12">
+      {/* Name and location at the top, full width */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-medium md:text-3xl">{info.name}</h1>
+        <p className="text-sm text-muted-foreground">
+          {info.location}
+          {info.notes && ` · ${info.notes}`}
+        </p>
       </div>
+
+      {error && (
+        <p className="mb-4 text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      )}
+
+      {/* One column on mobile, two columns on desktop */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Left column: images, watering status and plant information */}
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Plant images</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <img
+                src={selectedImage ? getImageUrl(selectedImage.url) : DEFAULT_IMAGE}
+                alt={info.name}
+                className="h-44 w-full rounded-lg object-cover md:h-72"
+              />
+              <ImageInfoCard
+                images={images}
+                selectedImageId={selectedImageId}
+                onImageSelect={(image) => setSelectedImageId(image.imageId)}
+              />
+              <SubmitImage
+                plant={{ PlantId: plantId, name: info.name }}
+                images={images}
+                selectedIndex={images.findIndex((image) => image.imageId === selectedImageId)}
+                canCreate={!imagesLoading && !imagesError}
+                onSaved={loadPlantImages}
+              />
+            </CardContent>
+          </Card>
+
+          {imagesError && (
+            <p className="text-sm text-destructive" role="alert">
+              {imagesError}
+            </p>
+          )}
+
+          {/* Watering status */}
+          <Card>
+            <CardContent>
+              <div className="flex items-center gap-2 text-sm">
+                <Droplet className="h-4 w-4" />
+                <span>
+                  Last watered: {lastWatered ? lastWatered.toLocaleDateString() : "Never"}
+                </span>
+                <span className={badgeClass}>{status}</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <PlantInfoCard plant={info} onSave={handleSaveInfo} />
+        </div>
+
+        {/* Right column: care schedule, care log and health log */}
+        <div className="space-y-4">
+          <CareTasksCard plantId={plantId} tasks={careTasks} onTasksChange={setCareTasks} />
+
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={handleWatered}
+            disabled={!wateringTask || wasDoneToday(wateringTask)}
+          >
+            <Droplet className="h-4 w-4" /> Mark as watered
+          </Button>
+          {!wateringTask && (
+            <p className="text-xs text-muted-foreground">
+              Add a Watering task in the care schedule to track watering.
+            </p>
+          )}
+
+          <CareLogCard plantId={plantId} logs={careLogs} onLogsChange={setCareLogs} />
+          <HealthLogCard plantId={plantId} />
+        </div>
+      </div>
+
+      <Button
+        variant="destructive"
+        className="mt-8 w-full gap-2 sm:w-auto"
+        onClick={handleDelete}
+      >
+        <Trash2 className="h-4 w-4" />
+        Delete plant
+      </Button>
     </div>
   );
 };
