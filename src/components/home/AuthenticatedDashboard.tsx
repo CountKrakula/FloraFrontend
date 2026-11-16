@@ -89,7 +89,7 @@ export const AuthenticatedDashboard = () => {
         <DashboardSummaryCard
           active={activePanel === "logs"}
           expanded={activePanel === "logs"}
-          label="Care los"
+          label="Care log"
           value={isLoading ? "—" : careLogs.length}
           icon={
             <NotebookPen className="size-8 text-primary" aria-hidden="true" />
@@ -150,76 +150,81 @@ export const AuthenticatedDashboard = () => {
                 </ul>
               )
             ) : activePanel === "tasks" ? (
-              tasksNeedingAttention.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No overdue or upcoming care tasks.
-                </p>
-              ) : (
-                <div>
-                  <ul className="space-y-3">
-                    {tasksNeedingAttention.map((task) => (
-                      <li key={`${task.plantId}-${task.id}`}>
-                        <Link
-                          to={`/plant-details/${task.plantId}`}
-                          className="flex items-center justify-between gap-4 rounded-xl border border-warning-border border-l-4 border-l-warning bg-warning-background p-4 transition-colors hover:border-warning focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        >
-                          <div>
-                            <p className="font-medium text-foreground">
-                              {task.plantName}
-                            </p>
-                            <div className="flex gap-2 items-center">
-                              <BellRing className="size-4" aria-hidden="true" />
-
-                              <p className="text-sm text-muted-foreground">
-                                {task.type}
+              <div>
+                {tasksNeedingAttention.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    No overdue care tasks.
+                  </p>
+                ) : (
+                  <div>
+                    <ul className="space-y-3">
+                      {tasksNeedingAttention.map((task) => (
+                        <li key={`${task.plantId}-${task.id}`}>
+                          <Link
+                            to={`/plant-details/${task.plantId}`}
+                            className="flex items-center justify-between gap-4 rounded-xl border border-warning-border border-l-4 border-l-warning bg-warning-background p-4 transition-colors hover:border-warning focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          >
+                            <div>
+                              <p className="font-medium text-foreground">
+                                {task.plantName}
                               </p>
+                              <div className="flex gap-2 items-center">
+                                <BellRing
+                                  className="size-4"
+                                  aria-hidden="true"
+                                />
+
+                                <p className="text-sm text-muted-foreground">
+                                  {task.type}
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                          <time className="shrink-0 text-sm text-muted-foreground">
-                            Due {formatDate(task.nextDueAt)}
-                          </time>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                  {tasksUpcoming.length > 0 ? (
-                    <div className="mt-6">
-                      <p className="mb-2 text-sm font-medium text-foreground">
-                        Upcoming care tasks
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        These tasks are due in the next three days.
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="mt-6 text-sm text-muted-foreground">
-                      No care tasks due in the next three days.
+                            <time className="shrink-0 text-sm text-muted-foreground">
+                              Due {formatDate(task.nextDueAt)}
+                            </time>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {tasksUpcoming.length > 0 ? (
+                  <div className="mt-6">
+                    <p className="mb-2 text-sm font-medium text-foreground">
+                      Upcoming care tasks
                     </p>
-                  )}
-                  <ul className="space-y-3">
-                    {tasksUpcoming.map((task) => (
-                      <li key={`${task.plantId}-${task.id}`}>
-                        <Link
-                          to={`/plant-details/${task.plantId}`}
-                          className="flex items-center justify-between gap-4 rounded-xl bg-secondary p-4 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        >
-                          <div>
-                            <p className="font-medium text-foreground">
-                              {task.plantName}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {task.type} · Every {task.intervalDays} days
-                            </p>
-                          </div>
-                          <time className="shrink-0 text-sm text-muted-foreground">
-                            Due {formatDate(task.nextDueAt)}
-                          </time>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )
+                    <p className="text-sm text-muted-foreground">
+                      These tasks are due in the next three days.
+                    </p>
+                  </div>
+                ) : (
+                  <p className="mt-6 text-sm text-muted-foreground">
+                    No care tasks due in the next three days.
+                  </p>
+                )}
+                <ul className="space-y-3">
+                  {tasksUpcoming.map((task) => (
+                    <li key={`${task.plantId}-${task.id}`}>
+                      <Link
+                        to={`/plant-details/${task.plantId}`}
+                        className="flex items-center justify-between gap-4 rounded-xl bg-secondary p-4 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <div>
+                          <p className="font-medium text-foreground">
+                            {task.plantName}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {task.type} · Every {task.intervalDays} days
+                          </p>
+                        </div>
+                        <time className="shrink-0 text-sm text-muted-foreground">
+                          Due {formatDate(task.nextDueAt)}
+                        </time>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ) : recentCareLogs.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 No care log entries yet.
