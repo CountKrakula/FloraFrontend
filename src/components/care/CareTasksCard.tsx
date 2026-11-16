@@ -21,15 +21,20 @@ import {
   deleteCareTask,
 } from "@/service/careTaskService";
 import { parseUtcDate } from "@/lib/date";
+import { CompleteCareTaskButton } from "@/components/care/CompleteCareTaskButton";
+import type { CareLogDto } from "@/types/careLog";
 
 type Props = {
   plantId: number;
   // The page owns the list, so the watering section updates at the same time
   tasks: CareTaskDto[];
   onTasksChange: (tasks: CareTaskDto[]) => void;
+  // Called with the updated task when a "Mark as ..." button has completed it
+  onTaskCompleted: (updated: CareTaskDto) => void;
+  onLogged?: (log: CareLogDto) => void; 
 };
 
-export const CareTasksCard = ({ plantId, tasks, onTasksChange }: Props) => {
+export const CareTasksCard = ({ plantId, tasks, onTasksChange, onTaskCompleted, onLogged }: Props) => {
   const [error, setError] = useState<string | null>(null);
 
   // The dialog is used both for adding and editing.
@@ -40,7 +45,7 @@ export const CareTasksCard = ({ plantId, tasks, onTasksChange }: Props) => {
   const [intervalDays, setIntervalDays] = useState(7);
 
   // True when the plant already has all four task types
-  const allTypesAdded = CARE_TASK_TYPES.every((t) => 
+  const allTypesAdded = CARE_TASK_TYPES.every((t) =>
     tasks.some((d) => d.type === t));
 
   function openAdd() {
@@ -50,7 +55,7 @@ export const CareTasksCard = ({ plantId, tasks, onTasksChange }: Props) => {
     );
 
     // All four types already exist, so there is nothing to add
-    if (!firstFreeType) return; 
+    if (!firstFreeType) return;
 
     setEditing(null);
     setType(firstFreeType); // start the form on a free type, not always "Watering"
@@ -119,14 +124,20 @@ export const CareTasksCard = ({ plantId, tasks, onTasksChange }: Props) => {
 
         {/* One row per task: type, how often, next date, and edit/delete buttons */}
         {tasks.map((task) => (
-          <div key={task.id} className="flex items-center gap-2 border-t py-2 text-sm">
-            <div className="flex-1">
+          <div key={task.id} className="flex flex-wrap items-center gap-2 border-t py-2 text-sm">
+            <div className="min-w-32 flex-1">
               <p className="font-medium">{task.type}</p>
               <p className="text-muted-foreground">
                 Every {task.intervalDays} days · Next:{" "}
                 {parseUtcDate(task.nextDueAt).toLocaleDateString()}
               </p>
             </div>
+            <CompleteCareTaskButton
+              task={task}
+              onCompleted={onTaskCompleted}
+              onLogged={onLogged}
+              onError={setError}
+            />
             <Button
               variant="ghost"
               size="icon-sm"
@@ -167,11 +178,11 @@ export const CareTasksCard = ({ plantId, tasks, onTasksChange }: Props) => {
               >
                 {/* Show only free types. When editing, the task's own type stays in the list. */}
                 {CARE_TASK_TYPES.filter((t) => !tasks.some((d) => d.type === t && d.id !== editing?.id))
-                .map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
+                  .map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
               </select>
             </div>
 

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { CareLogDto } from "@/types/careLog";
-import { getCareLogs, createCareLog } from "@/service/careLogService";
+import { getCareLogs } from "@/service/careLogService";
 import { CareLogCard } from "@/components/care/CareLogCard";
 import type { Plant as PlantInfo } from "@/components/plants/PlantInfoDialog";
 import { PlantInfoCard } from "@/components/plants/PlantInfoCard";
@@ -11,14 +11,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPlant, updatePlant, deletePlant } from "@/service/plantService";
 import { HealthLogCard } from "@/components/plants/HealthLogCard";
 import { CareTasksCard } from "@/components/care/CareTasksCard";
-import { getCareTasks, completeCareTask } from "@/service/careTaskService";
+import { getCareTasks } from "@/service/careTaskService";
 import type { CareTaskDto } from "@/types/careTask";
 import { parseUtcDate } from "@/lib/date";
 import { SubmitImage } from "@/components/images/SubmitPlantImage";
 import { ImageInfoCard } from "@/components/images/ImageInfoCard";
 import { getImageUrl, getImages } from "@/hooks/useImage";
 import type { ImageDTO } from "@/types/image";
-import { wasDoneToday } from "@/lib/careTaskRules";
+
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=500&q=80";
@@ -63,7 +63,7 @@ export const PlantDetailsPage = () => {
   // Care tasks from the backend, shared by the watering section and the care schedule card
   const [careTasks, setCareTasks] = useState<CareTaskDto[]>([]);
 
-  // Care logs from the backend, shared by "Mark as watered" and the care log card
+  // Care logs from the backend, shared by the care tasks card and the care log card
   const [careLogs, setCareLogs] = useState<CareLogDto[]>([]);
 
   // Fetch the plant from the backend when the page loads
@@ -124,28 +124,18 @@ export const PlantDetailsPage = () => {
   // The plant's watering task (if the user has added one in the care schedule)
   const wateringTask = careTasks.find((task) => task.type === "Watering");
 
-  // Runs when "Mark as watered" is clicked: tells the backend the watering task is done.
-  // The backend sets "last done" to now and calculates the next watering date.
-  async function handleWatered() {
-    if (!wateringTask || wasDoneToday(wateringTask)) return;
-
-    try {
-      const updated = await completeCareTask(plantId, wateringTask.id);
-      setCareTasks((prev) =>
-        prev.map((task) => (task.id === updated.id ? updated : task))
-      );
-      setError(null);
-
-      // Also save a "Watered" entry in the care log
-      const log = await createCareLog(plantId, {
-        date: new Date().toISOString(),
-        notes: "Watered",
-      });
-      setCareLogs((prev) => [log, ...prev]);
-    } catch {
-      setError("Could not mark the plant as watered. Please try again.");
-    }
+  // Replace the completed task in the list with the updated one from the backend
+  function handleTaskCompleted(updated: CareTaskDto) {
+    setCareTasks((prev) =>
+      prev.map((task) => (task.id === updated.id ? updated : task))
+    );
   }
+
+  // Show the new care log entry at the top of the care log
+  function handleLogged(log: CareLogDto) {
+    setCareLogs((prev) => [log, ...prev]);
+  }
+  
 
   // Status label based on the watering task's dates from the backend
   const lastWatered = wateringTask?.lastDoneAt ? parseUtcDate(wateringTask.lastDoneAt) : null;
@@ -242,22 +232,11 @@ export const PlantDetailsPage = () => {
 
         {/* Right column: care schedule, care log and health log */}
         <div className="space-y-4">
-          <CareTasksCard plantId={plantId} tasks={careTasks} onTasksChange={setCareTasks} />
+          <CareTasksCard plantId={plantId} tasks={careTasks} onTasksChange={setCareTasks}
+            onTaskCompleted={handleTaskCompleted}
+            onLogged={handleLogged} />
 
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full sm:w-auto"
-            onClick={handleWatered}
-            disabled={!wateringTask || wasDoneToday(wateringTask)}
-          >
-            <Droplet className="h-4 w-4" /> Mark as watered
-          </Button>
-          {!wateringTask && (
-            <p className="text-xs text-muted-foreground">
-              Add a Watering task in the care schedule to track watering.
-            </p>
-          )}
+
 
           <CareLogCard plantId={plantId} logs={careLogs} onLogsChange={setCareLogs} />
           <HealthLogCard plantId={plantId} />
