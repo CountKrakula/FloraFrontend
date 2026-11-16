@@ -5,6 +5,7 @@ type UserCareTasksContextType = {
   userCareTasks: CareTaskDto[];
   loading: boolean;
   error: Error | null;
+  updateTaskInState: (updated: CareTaskDto) => void;
 };
 
 export const UserCareTasksContext = createContext<
