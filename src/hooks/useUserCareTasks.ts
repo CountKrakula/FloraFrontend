@@ -7,14 +7,6 @@ export const useUserCareTasks = (isAuthenticated: boolean) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const updateTaskInState = (updated: CareTaskDto) => {
-    setUserCareTasks((prev) =>
-      prev.map((task) =>
-        task.id === updated.id ? { ...task, ...updated } : task,
-      ),
-    );
-  };
-
   useEffect(() => {
     if (!isAuthenticated) {
       return;
@@ -39,10 +31,26 @@ export const useUserCareTasks = (isAuthenticated: boolean) => {
     };
   }, [isAuthenticated]);
 
+  const updateTaskInState = (updated: CareTaskDto) => {
+    setUserCareTasks((prev) =>
+      prev.map((task) =>
+        task.id === updated.id ? { ...task, ...updated } : task,
+      ),
+    );
+  };
+
+  const replacePlantTasks = (plantId: number, tasks: CareTaskDto[]) => {
+    setUserCareTasks((prev) => [
+      ...prev.filter((task) => task.plantId !== plantId),
+      ...tasks,
+    ]);
+  };
+
   return {
     userCareTasks: isAuthenticated ? userCareTasks : [],
     loading: isAuthenticated && loading,
     error: isAuthenticated ? error : null,
     updateTaskInState,
+    replacePlantTasks,
   };
 };
