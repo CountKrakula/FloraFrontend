@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { getCareLogs } from "@/service/careLogService";
-import { getCareTasks } from "@/service/careTaskService";
 import { getPlants } from "@/service/plantService";
-import type { DashboardCareLog, DashboardTask } from "@/types/dashboard";
+import type { DashboardCareLog } from "@/types/dashboard";
 import type { PlantDto } from "@/types/plant";
 
 const DASHBOARD_PAGE_SIZE = 50;
@@ -31,7 +30,6 @@ const getAllCareLogs = async (plantId: number) => {
 
 export const useDashboard = () => {
   const [plants, setPlants] = useState<PlantDto[]>([]);
-  const [careTasks, setCareTasks] = useState<DashboardTask[]>([]);
   const [careLogs, setCareLogs] = useState<DashboardCareLog[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,16 +44,9 @@ export const useDashboard = () => {
         const userPlants = await getAllPlants();
         const plantDetails = await Promise.all(
           userPlants.map(async (plant) => {
-            const [plantTasks, plantCareLogs] = await Promise.all([
-              getCareTasks(plant.id),
-              getAllCareLogs(plant.id),
-            ]);
+            const plantCareLogs = await getAllCareLogs(plant.id);
 
             return {
-              tasks: plantTasks.map((task) => ({
-                ...task,
-                plantName: plant.name,
-              })),
               careLogs: plantCareLogs.map((careLog) => ({
                 ...careLog,
                 plantName: plant.name,
@@ -66,7 +57,6 @@ export const useDashboard = () => {
 
         if (isCurrent) {
           setPlants(userPlants);
-          setCareTasks(plantDetails.flatMap((item) => item.tasks));
           setCareLogs(plantDetails.flatMap((item) => item.careLogs));
         }
       } catch {
@@ -95,7 +85,6 @@ export const useDashboard = () => {
   };
   return {
     plants,
-    careTasks,
     careLogs,
     isLoading,
     error,
