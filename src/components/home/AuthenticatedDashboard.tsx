@@ -169,13 +169,13 @@ export const AuthenticatedDashboard = () => {
                       {tasksNeedingAttention.map((task) => (
                         <li
                           key={`${task.plantId}-${task.id}`}
-                          className="flex flex-col gap-3 rounded-xl border border-warning-border border-l-4 border-l-warning bg-warning-background p-4 transition-colors hover:border-warning sm:flex-row sm:items-center sm:justify-between"
+                          className="flex flex-col items-stretch gap-2 sm:flex-row"
                         >
                           <Link
                             to={`/plant-details/${task.plantId}`}
-                            className="min-w-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl border border-warning-border border-l-4 border-l-warning bg-warning-background p-4 transition-colors hover:border-warning focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                           >
-                            <div>
+                            <div className="min-w-0 flex-1 basis-40">
                               <p className="font-medium text-foreground">
                                 {task.plantName}
                               </p>
@@ -190,20 +190,19 @@ export const AuthenticatedDashboard = () => {
                                 </p>
                               </div>
                             </div>
-                          </Link>
-                          <div className="flex flex-wrap items-center gap-3">
-                            <time className="text-sm text-muted-foreground">
+                            <time className="shrink-0 text-sm text-muted-foreground">
                               Due {formatDate(task.nextDueAt)}
                             </time>
-                            <CompleteCareTaskButton
-                              task={task}
-                              onCompleted={updateTaskInState}
-                              onLogged={(log) =>
-                                addCareLog({ ...log, plantName: task.plantName })
-                              }
-                              onError={setTaskActionError}
-                            />
-                          </div>
+                          </Link>
+                          <CompleteCareTaskButton
+                            className="h-auto w-full shrink-0 rounded-xl px-4 py-3 whitespace-normal sm:w-auto sm:max-w-48"
+                            task={task}
+                            onCompleted={updateTaskInState}
+                            onLogged={(log) =>
+                              addCareLog({ ...log, plantName: task.plantName })
+                            }
+                            onError={setTaskActionError}
+                          />
                         </li>
                       ))}
                     </ul>
