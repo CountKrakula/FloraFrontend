@@ -90,5 +90,16 @@ export const useDashboard = () => {
   const addPlant = (plant: PlantDto) => {
     setPlants((prev) => [plant, ...prev]);
   };
-  return { plants, careTasks, careLogs, isLoading, error, addPlant };
+  const addCareLog = (log: DashboardCareLog) => {
+    setCareLogs((prev) => [log, ...prev]);
+  };
+  return {
+    plants,
+    careTasks,
+    careLogs,
+    isLoading,
+    error,
+    addPlant,
+    addCareLog,
+  };
 };

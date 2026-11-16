@@ -16,17 +16,20 @@ import { DashboardSummaryCard } from "./DashboardSummaryCard";
 import { formatDate } from "@/lib/date";
 import { Button } from "../ui/button";
 import { AddPlantDialog } from "../plants/AddPlantDialog";
+import { CompleteCareTaskButton } from "../care/CompleteCareTaskButton";
 
 export const AuthenticatedDashboard = () => {
-  const { plants, careLogs, isLoading, error, addPlant } = useDashboard();
+  const { plants, careLogs, isLoading, error, addPlant, addCareLog } =
+    useDashboard();
   const [activePanel, setActivePanel] = useState<DashboardPanel>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const {
     userCareTasks,
     loading: tasksLoading,
     error: tasksError,
+    updateTaskInState,
   } = useUserCareTasksContext();
-
+  const [taskActionError, setTaskActionError] = useState<string | null>(null);
   const tasksNeedingAttention = userCareTasks.filter((task) =>
     needsCareTaskAttention(task),
   );
@@ -151,6 +154,11 @@ export const AuthenticatedDashboard = () => {
               )
             ) : activePanel === "tasks" ? (
               <div>
+                {taskActionError && (
+                  <p role="alert" className="text-sm text-destructive">
+                    {taskActionError}
+                  </p>
+                )}
                 {tasksNeedingAttention.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     No overdue care tasks.
@@ -159,10 +167,13 @@ export const AuthenticatedDashboard = () => {
                   <div>
                     <ul className="space-y-3">
                       {tasksNeedingAttention.map((task) => (
-                        <li key={`${task.plantId}-${task.id}`}>
+                        <li
+                          key={`${task.plantId}-${task.id}`}
+                          className="flex flex-col gap-3 rounded-xl border border-warning-border border-l-4 border-l-warning bg-warning-background p-4 transition-colors hover:border-warning sm:flex-row sm:items-center sm:justify-between"
+                        >
                           <Link
                             to={`/plant-details/${task.plantId}`}
-                            className="flex items-center justify-between gap-4 rounded-xl border border-warning-border border-l-4 border-l-warning bg-warning-background p-4 transition-colors hover:border-warning focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            className="min-w-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                           >
                             <div>
                               <p className="font-medium text-foreground">
@@ -179,10 +190,20 @@ export const AuthenticatedDashboard = () => {
                                 </p>
                               </div>
                             </div>
-                            <time className="shrink-0 text-sm text-muted-foreground">
+                          </Link>
+                          <div className="flex flex-wrap items-center gap-3">
+                            <time className="text-sm text-muted-foreground">
                               Due {formatDate(task.nextDueAt)}
                             </time>
-                          </Link>
+                            <CompleteCareTaskButton
+                              task={task}
+                              onCompleted={updateTaskInState}
+                              onLogged={(log) =>
+                                addCareLog({ ...log, plantName: task.plantName })
+                              }
+                              onError={setTaskActionError}
+                            />
+                          </div>
                         </li>
                       ))}
                     </ul>
