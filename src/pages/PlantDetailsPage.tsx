@@ -18,10 +18,7 @@ import { SubmitImage } from "@/components/images/SubmitPlantImage";
 import { ImageInfoCard } from "@/components/images/ImageInfoCard";
 import { getImageUrl, getImages } from "@/hooks/useImage";
 import type { ImageDTO } from "@/types/image";
-
-
-const DEFAULT_IMAGE =
-  "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=500&q=80";
+import { PlantImagePlaceholder } from "@/components/plants/PlantImagePlaceholder";
 
 export const PlantDetailsPage = () => {
   // The plant id from the URL (/plant-details/:id), it's a string so convert to a number
@@ -188,11 +185,15 @@ export const PlantDetailsPage = () => {
               <CardTitle>Plant images</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <img
-                src={selectedImage ? getImageUrl(selectedImage.url) : DEFAULT_IMAGE}
-                alt={info.name}
-                className="h-44 w-full rounded-lg object-cover md:h-72"
-              />
+              {selectedImage ? (
+                <img
+                  src={getImageUrl(selectedImage.url)}
+                  alt={info.name}
+                  className="h-44 w-full rounded-lg object-cover md:h-72"
+                />
+              ) : (
+                <PlantImagePlaceholder className="h-44 w-full rounded-lg md:h-72" />
+              )}
               <ImageInfoCard
                 images={images}
                 selectedImageId={selectedImageId}

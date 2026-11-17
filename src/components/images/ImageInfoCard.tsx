@@ -20,7 +20,10 @@ export const ImageInfoCard = ({
           <div
             key={image.imageId}
             className="image-item"
-            onClick={() => onImageSelect(image)}
+            onClick={(event) => {
+              event.stopPropagation();
+              onImageSelect(image);
+            }}
           >
             <img src={getImageUrl(image.url)} alt="Plant" />
             {image.isProfilePicture && (
