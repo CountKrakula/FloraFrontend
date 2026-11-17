@@ -36,8 +36,12 @@ export const PlantDetailsPage = () => {
   const [imagesError, setImagesError] = useState<string | null>(null);
   const [imagesLoading, setImagesLoading] = useState(true);
 
-  const { userCareTasks, updateTaskInState, replacePlantTasks } =
-    useUserCareTasksContext();
+  const {
+    userCareTasks,
+    updateTaskInState,
+    replacePlantTasks,
+    loading: userCareTasksLoading,
+  } = useUserCareTasksContext();
   const careTasks = userCareTasks.filter((task) => task.plantId === plantId);
   const loadPlantImages = useCallback(() => {
     return getImages(plantId)
@@ -231,14 +235,17 @@ export const PlantDetailsPage = () => {
 
         {/* Right column: care schedule, care log and health log */}
         <div className="space-y-4">
-          <CareTasksCard
-            plantId={plantId}
-            tasks={careTasks}
-            onTasksChange={(tasks) => replacePlantTasks(plantId, tasks)}
-            onTaskCompleted={updateTaskInState}
-            onLogged={handleLogged}
-          />
-
+          {userCareTasksLoading ? (
+            <p role="status">Loading care tasks...</p>
+          ) : (
+            <CareTasksCard
+              plantId={plantId}
+              tasks={careTasks}
+              onTasksChange={(tasks) => replacePlantTasks(plantId, tasks)}
+              onTaskCompleted={updateTaskInState}
+              onLogged={handleLogged}
+            />
+          )}
           <CareLogCard
             plantId={plantId}
             logs={careLogs}
