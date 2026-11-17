@@ -8,6 +8,7 @@ import {
   Moon,
   Sun,
   UserPlus,
+  UserRound,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/context/auth-context";
@@ -36,6 +37,7 @@ const authenticatedLinks = [
   { to: "/", label: "Home", icon: House },
   { to: "/my-plants", label: "My plants", icon: Leaf },
   { to: "/plant-library", label: "Plant library", icon: LibraryBig },
+  { to: "/profile", label: "Profile", icon: UserRound },
 ];
 
 export const Navbar = () => {
