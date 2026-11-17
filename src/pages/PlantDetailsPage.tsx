@@ -11,14 +11,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPlant, updatePlant, deletePlant } from "@/service/plantService";
 import { HealthLogCard } from "@/components/plants/HealthLogCard";
 import { CareTasksCard } from "@/components/care/CareTasksCard";
-import { getCareTasks } from "@/service/careTaskService";
-import type { CareTaskDto } from "@/types/careTask";
 import { parseUtcDate } from "@/lib/date";
 import { SubmitImage } from "@/components/images/SubmitPlantImage";
 import { ImageInfoCard } from "@/components/images/ImageInfoCard";
 import { getImageUrl, getImages } from "@/hooks/useImage";
 import type { ImageDTO } from "@/types/image";
-
+import { useUserCareTasksContext } from "@/hooks/useUserCareTasksContext";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=500&q=80";
@@ -38,6 +36,13 @@ export const PlantDetailsPage = () => {
   const [imagesError, setImagesError] = useState<string | null>(null);
   const [imagesLoading, setImagesLoading] = useState(true);
 
+  const {
+    userCareTasks,
+    updateTaskInState,
+    replacePlantTasks,
+    loading: userCareTasksLoading,
+  } = useUserCareTasksContext();
+  const careTasks = userCareTasks.filter((task) => task.plantId === plantId);
   const loadPlantImages = useCallback(() => {
     return getImages(plantId)
       .then((fetchedImages) => {
@@ -45,7 +50,7 @@ export const PlantDetailsPage = () => {
         setSelectedImageId((currentImageId) =>
           fetchedImages.some((image) => image.imageId === currentImageId)
             ? currentImageId
-            : fetchedImages[0]?.imageId ?? null
+            : (fetchedImages[0]?.imageId ?? null),
         );
         setImagesError(null);
       })
@@ -60,9 +65,6 @@ export const PlantDetailsPage = () => {
     void loadPlantImages();
   }, [loadPlantImages]);
 
-  // Care tasks from the backend, shared by the watering section and the care schedule card
-  const [careTasks, setCareTasks] = useState<CareTaskDto[]>([]);
-
   // Care logs from the backend, shared by the care tasks card and the care log card
   const [careLogs, setCareLogs] = useState<CareLogDto[]>([]);
 
@@ -74,17 +76,10 @@ export const PlantDetailsPage = () => {
           name: plant.name,
           location: plant.location,
           notes: plant.notes ?? "",
-        })
+        }),
       )
       .catch(() => setError("Plant not found"))
       .finally(() => setLoading(false));
-  }, [plantId]);
-
-  // Fetch the care tasks from the backend when the page loads
-  useEffect(() => {
-    getCareTasks(plantId)
-      .then(setCareTasks)
-      .catch(() => setError("Could not load care tasks."));
   }, [plantId]);
 
   // Fetch the care logs from the backend when the page loads
@@ -124,43 +119,46 @@ export const PlantDetailsPage = () => {
   // The plant's watering task (if the user has added one in the care schedule)
   const wateringTask = careTasks.find((task) => task.type === "Watering");
 
-  // Replace the completed task in the list with the updated one from the backend
-  function handleTaskCompleted(updated: CareTaskDto) {
-    setCareTasks((prev) =>
-      prev.map((task) => (task.id === updated.id ? updated : task))
-    );
-  }
-
   // Show the new care log entry at the top of the care log
   function handleLogged(log: CareLogDto) {
     setCareLogs((prev) => [log, ...prev]);
   }
-  
 
   // Status label based on the watering task's dates from the backend
-  const lastWatered = wateringTask?.lastDoneAt ? parseUtcDate(wateringTask.lastDoneAt) : null;
-  const nextWatering = wateringTask ? parseUtcDate(wateringTask.nextDueAt) : null;
+  const lastWatered = wateringTask?.lastDoneAt
+    ? parseUtcDate(wateringTask.lastDoneAt)
+    : null;
+  const nextWatering = wateringTask
+    ? parseUtcDate(wateringTask.nextDueAt)
+    : null;
   const now = new Date();
 
   let status = "No watering schedule";
-  let badgeClass = "ml-auto rounded-md bg-muted px-3 py-1 text-xs text-muted-foreground";
+  let badgeClass =
+    "ml-auto rounded-md bg-muted px-3 py-1 text-xs text-muted-foreground";
   if (lastWatered && lastWatered.toDateString() === now.toDateString()) {
     status = "Watered today";
-    badgeClass = "ml-auto rounded-md bg-green-100 px-3 py-1 text-xs text-green-800";
+    badgeClass =
+      "ml-auto rounded-md bg-green-100 px-3 py-1 text-xs text-green-800";
   } else if (nextWatering && nextWatering <= now) {
     status = "Needs water";
-    badgeClass = "ml-auto rounded-md bg-amber-100 px-3 py-1 text-xs text-amber-800";
+    badgeClass =
+      "ml-auto rounded-md bg-amber-100 px-3 py-1 text-xs text-amber-800";
   } else if (nextWatering) {
     status = `Next: ${nextWatering.toLocaleDateString()}`;
-    badgeClass = "ml-auto rounded-md bg-secondary px-3 py-1 text-xs text-secondary-foreground";
+    badgeClass =
+      "ml-auto rounded-md bg-secondary px-3 py-1 text-xs text-secondary-foreground";
   }
 
   if (loading) return <p className="p-8 text-center">Loading...</p>;
 
   // No plant with that id (or it belongs to someone else)
-  if (!info) return <p className="p-8 text-center">{error ?? "Plant not found"}</p>;
+  if (!info)
+    return <p className="p-8 text-center">{error ?? "Plant not found"}</p>;
 
-  const selectedImage = images.find((image) => image.imageId === selectedImageId);
+  const selectedImage = images.find(
+    (image) => image.imageId === selectedImageId,
+  );
 
   return (
     <div className="container mx-auto max-w-6xl px-4 py-8 md:py-12">
@@ -189,7 +187,9 @@ export const PlantDetailsPage = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <img
-                src={selectedImage ? getImageUrl(selectedImage.url) : DEFAULT_IMAGE}
+                src={
+                  selectedImage ? getImageUrl(selectedImage.url) : DEFAULT_IMAGE
+                }
                 alt={info.name}
                 className="h-44 w-full rounded-lg object-cover md:h-72"
               />
@@ -201,7 +201,9 @@ export const PlantDetailsPage = () => {
               <SubmitImage
                 plant={{ PlantId: plantId, name: info.name }}
                 images={images}
-                selectedIndex={images.findIndex((image) => image.imageId === selectedImageId)}
+                selectedIndex={images.findIndex(
+                  (image) => image.imageId === selectedImageId,
+                )}
                 canCreate={!imagesLoading && !imagesError}
                 onSaved={loadPlantImages}
               />
@@ -220,7 +222,8 @@ export const PlantDetailsPage = () => {
               <div className="flex items-center gap-2 text-sm">
                 <Droplet className="h-4 w-4" />
                 <span>
-                  Last watered: {lastWatered ? lastWatered.toLocaleDateString() : "Never"}
+                  Last watered:{" "}
+                  {lastWatered ? lastWatered.toLocaleDateString() : "Never"}
                 </span>
                 <span className={badgeClass}>{status}</span>
               </div>
@@ -232,13 +235,22 @@ export const PlantDetailsPage = () => {
 
         {/* Right column: care schedule, care log and health log */}
         <div className="space-y-4">
-          <CareTasksCard plantId={plantId} tasks={careTasks} onTasksChange={setCareTasks}
-            onTaskCompleted={handleTaskCompleted}
-            onLogged={handleLogged} />
-
-
-
-          <CareLogCard plantId={plantId} logs={careLogs} onLogsChange={setCareLogs} />
+          {userCareTasksLoading ? (
+            <p role="status">Loading care tasks...</p>
+          ) : (
+            <CareTasksCard
+              plantId={plantId}
+              tasks={careTasks}
+              onTasksChange={(tasks) => replacePlantTasks(plantId, tasks)}
+              onTaskCompleted={updateTaskInState}
+              onLogged={handleLogged}
+            />
+          )}
+          <CareLogCard
+            plantId={plantId}
+            logs={careLogs}
+            onLogsChange={setCareLogs}
+          />
           <HealthLogCard plantId={plantId} />
         </div>
       </div>

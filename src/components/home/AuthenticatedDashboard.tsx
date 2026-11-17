@@ -16,17 +16,20 @@ import { DashboardSummaryCard } from "./DashboardSummaryCard";
 import { formatDate } from "@/lib/date";
 import { Button } from "../ui/button";
 import { AddPlantDialog } from "../plants/AddPlantDialog";
+import { CompleteCareTaskButton } from "../care/CompleteCareTaskButton";
 
 export const AuthenticatedDashboard = () => {
-  const { plants, careLogs, isLoading, error, addPlant } = useDashboard();
+  const { plants, careLogs, isLoading, error, addPlant, addCareLog } =
+    useDashboard();
   const [activePanel, setActivePanel] = useState<DashboardPanel>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const {
     userCareTasks,
     loading: tasksLoading,
     error: tasksError,
+    updateTaskInState,
   } = useUserCareTasksContext();
-
+  const [taskActionError, setTaskActionError] = useState<string | null>(null);
   const tasksNeedingAttention = userCareTasks.filter((task) =>
     needsCareTaskAttention(task),
   );
@@ -151,6 +154,11 @@ export const AuthenticatedDashboard = () => {
               )
             ) : activePanel === "tasks" ? (
               <div>
+                {taskActionError && (
+                  <p role="alert" className="text-sm text-destructive">
+                    {taskActionError}
+                  </p>
+                )}
                 {tasksNeedingAttention.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     No overdue care tasks.
@@ -159,12 +167,15 @@ export const AuthenticatedDashboard = () => {
                   <div>
                     <ul className="space-y-3">
                       {tasksNeedingAttention.map((task) => (
-                        <li key={`${task.plantId}-${task.id}`}>
+                        <li
+                          key={`${task.plantId}-${task.id}`}
+                          className="flex flex-col items-stretch gap-2 sm:flex-row"
+                        >
                           <Link
                             to={`/plant-details/${task.plantId}`}
-                            className="flex items-center justify-between gap-4 rounded-xl border border-warning-border border-l-4 border-l-warning bg-warning-background p-4 transition-colors hover:border-warning focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl border border-warning-border border-l-4 border-l-warning bg-warning-background p-4 transition-colors hover:border-warning focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                           >
-                            <div>
+                            <div className="min-w-0 flex-1 basis-40">
                               <p className="font-medium text-foreground">
                                 {task.plantName}
                               </p>
@@ -183,6 +194,15 @@ export const AuthenticatedDashboard = () => {
                               Due {formatDate(task.nextDueAt)}
                             </time>
                           </Link>
+                          <CompleteCareTaskButton
+                            className="h-auto w-full shrink-0 rounded-xl px-4 py-3 whitespace-normal sm:w-auto sm:max-w-48"
+                            task={task}
+                            onCompleted={updateTaskInState}
+                            onLogged={(log) =>
+                              addCareLog({ ...log, plantName: task.plantName })
+                            }
+                            onError={setTaskActionError}
+                          />
                         </li>
                       ))}
                     </ul>
