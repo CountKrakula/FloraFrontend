@@ -59,9 +59,13 @@ export const Navbar = () => {
         <Leaf className="size-9 sm:size-10" aria-hidden="true" />
       </NavLink>
 
-      <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 font-serif text-2xl font-bold italic tracking-wider text-primary sm:text-3xl md:text-4xl">
+      <NavLink
+        to="/"
+        aria-label="Flora startsida"
+        className="absolute left-1/2 -translate-x-1/2 rounded-sm font-serif text-2xl font-bold italic tracking-wider text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-3xl md:text-4xl"
+      >
         Flora
-      </span>
+      </NavLink>
 
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger
