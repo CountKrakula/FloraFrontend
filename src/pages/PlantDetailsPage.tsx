@@ -19,7 +19,6 @@ import { ImageInfoCard } from "@/components/images/ImageInfoCard";
 import { getImageUrl, getImages } from "@/hooks/useImage";
 import type { ImageDTO } from "@/types/image";
 
-
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=500&q=80";
 
