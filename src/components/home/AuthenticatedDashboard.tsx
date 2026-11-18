@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { BellRing, Droplets, Leaf, NotebookPen, Plus } from "lucide-react";
 import {
@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useDashboard } from "@/hooks/useDashboard";
+import { getProfile } from "@/service/profileService";
 import type { DashboardPanel } from "@/types/dashboard";
 import { useUserCareTasksContext } from "@/hooks/useUserCareTasksContext";
 import { isCareTaskUpcoming, needsCareTaskAttention } from "@/lib/careTasks";
@@ -22,6 +23,7 @@ export const AuthenticatedDashboard = () => {
   const { plants, careLogs, isLoading, error, addPlant, addCareLog } =
     useDashboard();
   const [activePanel, setActivePanel] = useState<DashboardPanel>(null);
+  const [greeting, setGreeting] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const {
     userCareTasks,
@@ -30,6 +32,23 @@ export const AuthenticatedDashboard = () => {
     updateTaskInState,
   } = useUserCareTasksContext();
   const [taskActionError, setTaskActionError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    getProfile()
+      .then((profile) => {
+        if (isCurrent) setGreeting(profile.isFirstLogin ? "Welcome!" : "Welcome back!");
+      })
+      .catch(() => {
+        if (isCurrent) setGreeting("Welcome!");
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
+
   const tasksNeedingAttention = userCareTasks.filter((task) =>
     needsCareTaskAttention(task),
   );
@@ -52,7 +71,7 @@ export const AuthenticatedDashboard = () => {
       <div>
         <p className="font-medium text-primary">Your plant overview</p>
         <h1 className="mt-2 font-serif text-4xl font-semibold italic tracking-wide text-primary sm:text-5xl">
-          Welcome back!
+          {greeting}
         </h1>
         <p className="mt-2 text-muted-foreground">
           Here is what is happening with your plants.
