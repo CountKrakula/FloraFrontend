@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import type { PlantDto } from "@/types/plant";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -11,19 +11,17 @@ const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=500&q=80";
 
 export const PlantCard: React.FC<PlantCardProps> = ({ plant }) => {
-  const navigate = useNavigate();
-
   return (
-    <Card
-      onClick={() => navigate(`/plant-details/${plant.id}`)}
-      className="group overflow-hidden cursor-pointer hover:shadow-md transition-all duration-200 border-border p-0 flex flex-col justify-between"
+    <Link
+      to={`/plant-details/${plant.id}`}
+      className="group block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <div>
+      <Card className="h-full overflow-hidden border-border p-0 transition-[background-color,box-shadow,translate] duration-200 group-hover:bg-secondary group-hover:shadow-md group-hover:ring-primary/50 motion-safe:group-hover:-translate-y-1 motion-reduce:transition-none">
         <div className="h-48 w-full bg-muted overflow-hidden">
           <img
             src={DEFAULT_IMAGE}
             alt={plant.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-105"
           />
         </div>
 
@@ -33,7 +31,7 @@ export const PlantCard: React.FC<PlantCardProps> = ({ plant }) => {
           </CardTitle>
           <p className="text-sm text-muted-foreground">{plant.location}</p>
         </CardHeader>
-      </div>
-    </Card>
+      </Card>
+    </Link>
   );
 };
