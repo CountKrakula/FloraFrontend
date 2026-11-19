@@ -1,75 +1,43 @@
-# React + TypeScript + Vite
+# Flora Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Flora is a plant-care app. Create an account, add your plants, set up recurring care tasks such as watering and fertilizing, see what is due on your dashboard, and mark tasks as done. You can also keep a care log and a health log per plant, upload plant images and browse a plant library.
 
-Currently, two official plugins are available:
+Live app: https://frontendflora-e0a0bxe6g2ggdkcc.norwayeast-01.azurewebsites.net/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Built with React, TypeScript, Vite, Tailwind CSS and shadcn/ui. Backend: [FloraBackend](https://github.com/CountKrakula/FloraBackend).
 
-## React Compiler
+## Run it locally
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+You need [Node.js](https://nodejs.org/) 24 and the Flora backend running locally (see its README).
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+git clone https://github.com/CountKrakula/FloraFrontend.git
+cd FloraFrontend
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Open the address Vite prints, normally `http://localhost:5173`. Start the backend first with `dotnet run --launch-profile https`, so the API is available at `https://localhost:7064`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+The backend's `Frontend_Domain` setting must match the address you open the frontend on, otherwise the browser blocks the API calls (CORS).
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Environment variables
 
-```
+| Variable | Description | Development value |
+| --- | --- | --- |
+| `VITE_API_BASE_URL` | Base URL of the backend API | `https://localhost:7064/` |
+
+The values are in `.env.development` (used by `npm run dev`) and `.env.production` (used by `npm run build`, pointing to the deployed backend). Don't put secrets in these files, because everything in a Vite build is visible in the browser.
+
+## Scripts
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the development server |
+| `npm run build` | Type-check and build to `dist/` |
+| `npm run preview` | Serve the production build locally |
+| `npm run lint` | Run ESLint |
+
+## Deployment
+
+A push to `main` builds the app and deploys it to Azure with GitHub Actions. There is no automated test suite in the frontend yet.
