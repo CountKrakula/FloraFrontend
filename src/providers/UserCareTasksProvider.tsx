@@ -8,10 +8,24 @@ export const UserCareTasksProvider = ({
   children: React.ReactNode;
 }) => {
   const { isAuthenticated } = useAuth();
-  const { userCareTasks, loading, error } = useUserCareTasks(isAuthenticated);
+  const {
+    userCareTasks,
+    loading,
+    error,
+    updateTaskInState,
+    replacePlantTasks,
+  } = useUserCareTasks(isAuthenticated);
 
   return (
-    <UserCareTasksContext.Provider value={{ userCareTasks, loading, error }}>
+    <UserCareTasksContext.Provider
+      value={{
+        userCareTasks,
+        loading,
+        error,
+        updateTaskInState,
+        replacePlantTasks,
+      }}
+    >
       {children}
     </UserCareTasksContext.Provider>
   );

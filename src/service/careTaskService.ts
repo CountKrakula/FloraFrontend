@@ -19,7 +19,7 @@ export const updateCareTask = (
 export const deleteCareTask = (plantId: number, id: number) =>
   del<void>(`${baseUrl(plantId)}/${id}`);
 
-export const completeCareTask = (plantId: number, id: number) =>
-  post<CareTaskDto>(`${baseUrl(plantId)}/${id}/complete`, {});
+export const completeCareTask = (plantId: number, id: number, doneAt?: string) =>
+  post<CareTaskDto>(`${baseUrl(plantId)}/${id}/complete`, doneAt ? { doneAt } : {});
 
 export const getAllUserCareTasks = () => get<CareTaskDto[]>(`api/caretasks`);
