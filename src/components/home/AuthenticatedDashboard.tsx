@@ -68,7 +68,7 @@ export const AuthenticatedDashboard = () => {
 
   return (
     <section className="mx-auto w-full max-w-6xl space-y-8 px-4 py-8 sm:py-12">
-      <div>
+      <div className="text-center">
         <p className="font-medium text-primary">Your plant overview</p>
         <h1 className="mt-2 font-serif text-4xl font-semibold italic tracking-wide text-primary sm:text-5xl">
           {greeting}
