@@ -17,7 +17,7 @@ export const PlantLibraryCard = ({ plantListItem }: PlantLibraryCardProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>
-        <Card className="group overflow-hidden border-border p-0 transition-shadow duration-200 hover:shadow-md">
+        <Card className="h-full group overflow-hidden border-border p-0 transition-shadow duration-200 hover:shadow-md">
           <div>
             <div className="flex h-48 items-center justify-center overflow-hidden bg-muted">
               {imageUrl && imageUrl !== failedImageUrl ? (
@@ -34,14 +34,14 @@ export const PlantLibraryCard = ({ plantListItem }: PlantLibraryCardProps) => {
             </div>
             <CardHeader className="p-4 pb-1">
               <CardTitle>
-                <h2 className="text-lg font-semibold">
+                <h2 className="line-clamp-2 text-lg font-semibold">
                   {plantListItem.common_name}
                 </h2>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 p-4 pt-0">
+            <CardContent className="p-4 pt-0">
               {plantListItem.scientific_name && (
-                <p className="text-sm text-muted-foreground">
+                <p className="line-clamp-2 text-sm text-muted-foreground">
                   {plantListItem.scientific_name}
                 </p>
               )}
