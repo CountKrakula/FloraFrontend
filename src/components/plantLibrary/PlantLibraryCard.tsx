@@ -16,8 +16,8 @@ export const PlantLibraryCard = ({ plantListItem }: PlantLibraryCardProps) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        <Card className="group overflow-hidden border-border p-0 transition-shadow duration-200 hover:shadow-md">
+      <DialogTrigger className="group cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <Card className="overflow-hidden border-border p-0 transition-[background-color,box-shadow,translate] duration-200 group-hover:bg-secondary group-hover:shadow-md group-hover:ring-primary/50 motion-safe:group-hover:-translate-y-1 motion-reduce:transition-none">
           <div>
             <div className="flex h-48 items-center justify-center overflow-hidden bg-muted">
               {imageUrl && imageUrl !== failedImageUrl ? (

@@ -25,14 +25,14 @@ export const DashboardSummaryCard = ({
   navigateTo,
 }: DashboardSummaryCardProps) => (
   <Card
-    className={`bg-card shadow-sm transition-shadow hover:shadow-md ${active ? "border-primary" : ""}`}
+    className={`bg-card shadow-sm transition-[background-color,box-shadow,translate] duration-200 hover:bg-secondary hover:shadow-md hover:ring-primary/50 motion-safe:hover:-translate-y-1 motion-reduce:transition-none ${active ? "border-primary" : ""}`}
   >
     <button
       type="button"
       aria-expanded={expanded}
       aria-controls="dashboard-details"
       onClick={onClick}
-      className="w-full rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="w-full cursor-pointer rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <CardContent className="flex flex-col gap-3 p-5">
         <div className="flex items-center gap-4">
