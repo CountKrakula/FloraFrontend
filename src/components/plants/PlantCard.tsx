@@ -47,7 +47,7 @@ export const PlantCard: React.FC<PlantCardProps> = ({ plant }) => {
   return (
     <Card
       onClick={() => navigate(`/plant-details/${plant.id}`)}
-      className="group overflow-hidden cursor-pointer hover:shadow-md transition-all duration-200 border-border p-0 flex flex-col justify-between"
+      className="group overflow-hidden cursor-pointer border-border p-0 flex flex-col justify-between transition-[background-color,box-shadow,translate] duration-200 hover:bg-secondary hover:shadow-md motion-safe:hover:-translate-y-1 motion-reduce:transition-none"
     >
       <div>
         <div className="h-48 w-full bg-muted overflow-hidden">
@@ -55,10 +55,10 @@ export const PlantCard: React.FC<PlantCardProps> = ({ plant }) => {
             <img
               src={getImageUrl(selectedImage.url)}
               alt={plant.name}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-105"
             />
           ) : (
-            <PlantImagePlaceholder className="h-full w-full transition-transform duration-300 group-hover:scale-105" />
+            <PlantImagePlaceholder className="h-full w-full motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-105" />
           )}
         </div>
         {images.length > 0 && selectedImage && (
