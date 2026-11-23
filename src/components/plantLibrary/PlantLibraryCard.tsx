@@ -17,7 +17,7 @@ export const PlantLibraryCard = ({ plantListItem }: PlantLibraryCardProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger className="group cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-        <Card className="overflow-hidden border-border p-0 transition-[background-color,box-shadow,translate] duration-200 group-hover:bg-secondary group-hover:shadow-md group-hover:ring-primary/50 motion-safe:group-hover:-translate-y-1 motion-reduce:transition-none">
+        <Card className="h-full overflow-hidden border-border p-0 transition-[background-color,box-shadow,translate] duration-200 group-hover:bg-secondary group-hover:shadow-md motion-safe:group-hover:-translate-y-1 motion-reduce:transition-none">
           <div>
             <div className="flex h-48 items-center justify-center overflow-hidden bg-muted">
               {imageUrl && imageUrl !== failedImageUrl ? (
@@ -34,14 +34,14 @@ export const PlantLibraryCard = ({ plantListItem }: PlantLibraryCardProps) => {
             </div>
             <CardHeader className="p-4 pb-1">
               <CardTitle>
-                <h2 className="text-lg font-semibold">
+                <h2 className="line-clamp-2 text-lg font-semibold">
                   {plantListItem.common_name}
                 </h2>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 p-4 pt-0">
+            <CardContent className="p-4 pt-0">
               {plantListItem.scientific_name && (
-                <p className="text-sm text-muted-foreground">
+                <p className="line-clamp-2 text-sm text-muted-foreground">
                   {plantListItem.scientific_name}
                 </p>
               )}

@@ -2,6 +2,7 @@ export type ProfileDto = {
   name: string;
   email: string;
   isEmailConfirmed: boolean;
+  isFirstLogin: boolean;
 };
 
 export type UpdateProfileDto = {
